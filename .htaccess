@@ -1,0 +1,25 @@
+# Yabiso Cloud Stockage
+Options -Indexes
+DirectoryIndex index.php
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  # Liens de partage courts : /s/JETON, /s/JETON/dl, /s/JETON/f/chemin/fichier
+  RewriteRule ^s/([A-Za-z0-9_-]+)/dl/?$ s.php?t=$1&dl=1 [QSA,L]
+  RewriteRule ^s/([A-Za-z0-9_-]+)/f/(.+)$ s.php?t=$1&p=$2&raw=1 [QSA,L,B]
+  RewriteRule ^s/([A-Za-z0-9_-]+)/?$ s.php?t=$1 [QSA,L]
+</IfModule>
+
+# Protéger les dossiers internes
+<IfModule mod_rewrite.c>
+  RewriteRule ^(data|storage|inc)(/|$) - [F,L]
+</IfModule>
+<FilesMatch "^(config\.php|config\.sample\.php|\.user\.ini|README\.md)$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
