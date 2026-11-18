@@ -4,8 +4,15 @@ DirectoryIndex index.php
 
 <IfModule mod_rewrite.c>
   RewriteEngine On
-  # Liens de partage courts : /s/JETON, /s/JETON/dl, /s/JETON/f/chemin/fichier
+  # Liens de partage courts :
+  #   /s/JETON                 page de téléchargement
+  #   /s/JETON/dl              téléchargement direct
+  #   /s/JETON/v/nom.json      lecture directe d'un fichier partagé (JSON, HTML, image…)
+  #   /s/JETON/f/               site web d'un dossier partagé (index.html)
+  #   /s/JETON/f/chemin/x.json lecture directe d'un fichier d'un dossier partagé
   RewriteRule ^s/([A-Za-z0-9_-]+)/dl/?$ s.php?t=$1&dl=1 [QSA,L]
+  RewriteRule ^s/([A-Za-z0-9_-]+)/v(/.*)?$ s.php?t=$1&raw=1 [QSA,L]
+  RewriteRule ^s/([A-Za-z0-9_-]+)/f/?$ s.php?t=$1&raw=1 [QSA,L]
   RewriteRule ^s/([A-Za-z0-9_-]+)/f/(.+)$ s.php?t=$1&p=$2&raw=1 [QSA,L,B]
   RewriteRule ^s/([A-Za-z0-9_-]+)/?$ s.php?t=$1 [QSA,L]
 </IfModule>

@@ -121,9 +121,16 @@
     try {
       const j = await api('share', { path });
       const row = (lab, val, help) => `<div class="linkbox"><label>${lab}</label><div class="copyrow"><input readonly value="${esc(val)}" onclick="this.select()"><button type="button" class="btn" data-copy="${esc(val)}">Copier</button></div>${help ? `<small class="muted">${help}</small>` : ''}</div>`;
-      const body = row('Lien de partage (page de téléchargement)', j.url, 'À envoyer à vos testeurs / clients.')
-        + (j.is_dir ? `<small class="muted">Toute personne ayant ce lien peut voir et télécharger le contenu du dossier (y compris en ZIP).</small>`
-                    : row('Lien direct (téléchargement immédiat)', j.direct, 'Idéal pour un APK, un JSON ou à utiliser dans votre application.'));
+      const note = j.sandboxed ? ' Le HTML est servi en mode isolé (sécurité) : scripts autorisés, mais pas de cookies/localStorage.' : '';
+      let body = row('Lien de partage (page de téléchargement)', j.url, 'À envoyer à vos testeurs / clients.');
+      if (j.is_dir) {
+        if (j.site) body += row('🌐 Lien web du dossier (ouvre index.html)', j.site, 'Pour une WebView ou un site : les fichiers CSS/JS/images du dossier sont chargés automatiquement.' + note);
+        body += row('Adresse de base des fichiers (lecture directe)', j.files_base, 'Ajoutez le chemin du fichier à la fin, ex. : ' + esc(j.files_base) + 'data/config.json');
+        body += `<small class="muted">Toute personne ayant ces liens peut voir et télécharger le contenu du dossier (y compris en ZIP).</small>`;
+      } else {
+        if (j.view) body += row('👁 Lien de lecture directe (affichage)', j.view, 'S’ouvre directement dans le navigateur, une WebView ou via fetch()/HTTP (JSON, HTML, images…).' + (/\.(html?|svg)$/i.test(j.name) ? note : ''));
+        body += row('⬇ Lien de téléchargement direct', j.direct, 'Force le téléchargement (idéal pour un APK).');
+      }
       const r = await dialog({ title: '🔗 Lien de « ' + j.name + ' »', body,
         buttons: [{ value: 'unshare', label: 'Désactiver le lien', cls: 'danger' }, { value: 'ok', label: 'Fermer', cls: 'primary' }] });
       if (r === 'unshare') { await api('unshare', { path }); toast('Lien désactivé.'); }

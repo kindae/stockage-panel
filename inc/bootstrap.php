@@ -26,15 +26,36 @@ foreach (['data_dir', 'storage_dir'] as $d) {
     if (!is_file($p . '/index.html')) { @file_put_contents($p . '/index.html', ''); }
 }
 
-ini_set('session.cookie_httponly', '1');
-ini_set('session.use_strict_mode', '1');
-if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') { ini_set('session.cookie_secure', '1'); }
-session_name('YABISOSESS');
-session_set_cookie_params(['samesite' => 'Lax', 'path' => '/']);
-session_start();
-
 require __DIR__ . '/db.php';
 require __DIR__ . '/helpers.php';
+
+// Domaine réservé aux contenus (lecture directe) : pas de session, uniquement les liens de partage.
+if (on_content_host()) {
+    $script = basename($_SERVER['SCRIPT_NAME'] ?? '');
+    if ($script !== 's.php' || (empty($_GET['raw']) && empty($_GET['dl']))) {
+        $main = (string)setting('main_host', '');
+        if ($main !== '') {
+            header('Location: https://' . $main . ($_SERVER['REQUEST_URI'] ?? '/'), true, 302);
+        } else {
+            http_response_code(404);
+            echo 'Domaine réservé aux contenus partagés.';
+        }
+        exit;
+    }
+    $_SESSION = [];
+} else {
+    ini_set('session.cookie_httponly', '1');
+    ini_set('session.use_strict_mode', '1');
+    if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') { ini_set('session.cookie_secure', '1'); }
+    session_name('YABISOSESS');
+    session_set_cookie_params(['samesite' => 'Lax', 'path' => '/']);
+    // Pas de session pour les lectures directes / téléchargements publics (plus rapide, pas de cookie).
+    if (!(basename($_SERVER['SCRIPT_NAME'] ?? '') === 's.php' && (!empty($_GET['raw']) || !empty($_GET['dl']) || !empty($_GET['zip'])))) {
+        session_start();
+    }
+}
+if (!isset($_SESSION)) $_SESSION = [];
+
 require __DIR__ . '/auth.php';
 require __DIR__ . '/fs.php';
 require __DIR__ . '/layout.php';

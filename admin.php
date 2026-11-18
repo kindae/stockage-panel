@@ -40,6 +40,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($q === null || $q < 1024 * 1024) throw new RuntimeException('Quota par défaut invalide (ex. 200, 500M, 1G).');
             set_setting('default_quota', (string)$q);
             set_setting('pretty_urls', !empty($_POST['pretty_urls']) ? '1' : '0');
+            $ch = strtolower(trim((string)($_POST['content_host'] ?? '')));
+            $ch = preg_replace('#^https?://|/.*$#', '', $ch);
+            if ($ch !== '' && !preg_match('/^[a-z0-9.-]+(:\d+)?$/', $ch)) throw new RuntimeException('Domaine des contenus invalide (ex. files.yabiso.cloud).');
+            if ($ch !== '' && $ch === strtolower($_SERVER['HTTP_HOST'] ?? '')) throw new RuntimeException('Le domaine des contenus doit être différent du domaine du panneau.');
+            set_setting('content_host', $ch);
+            set_setting('main_host', strtolower($_SERVER['HTTP_HOST'] ?? ''));
             log_action('settings', 'Quota par défaut : ' . human_size($q));
             flash('Paramètres enregistrés. Quota par défaut : ' . human_size($q) . '.');
             break;
@@ -174,6 +180,11 @@ page_header('Administration', 'admin');
         <small class="muted">En Mo (ex. 200), ou avec unité : 500M, 1G, 2.5G. Un quota personnalisé par membre est possible ci-dessous.</small>
       </label>
       <label class="check"><input type="checkbox" name="pretty_urls" value="1" <?= setting('pretty_urls', '1') === '1' ? 'checked' : '' ?>> Liens courts <code><?= e(url('s/…')) ?></code> (nécessite mod_rewrite / .htaccess)</label>
+      <label>Domaine des contenus (lecture directe) — facultatif
+        <input name="content_host" value="<?= e(content_host()) ?>" placeholder="ex. files.yabiso.cloud">
+        <small class="muted">Laissez vide : les pages HTML partagées s’affichent en <strong>mode isolé</strong> (scripts OK, mais sans cookies ni localStorage) pour protéger les comptes.
+        Pour des sites / WebView complets, créez un 2ᵉ sous-domaine pointant vers <strong>le même dossier</strong> et indiquez-le ici : les liens « lecture » l’utiliseront sans restriction.</small>
+      </label>
       <button class="btn primary">Enregistrer</button>
     </form>
     <p class="muted small">Limite d’envoi PHP actuelle : <strong><?= e(human_size(max_upload_bytes())) ?></strong> par fichier (modifiable dans <code>.user.ini</code> ou cPanel › Sélecteur PHP).</p>

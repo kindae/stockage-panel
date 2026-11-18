@@ -23,7 +23,8 @@ page_header('Mes liens', 'shares');
     <thead><tr><th>Élément</th><th>Lien</th><th class="hide-sm">Téléchargements</th><th class="hide-sm">Créé le</th><th></th></tr></thead>
     <tbody>
     <?php foreach ($shares as $s):
-        $link = share_url($s['token']); $direct = share_url($s['token'], true);
+        $link = share_url($s['token']); $direct = share_url($s['token'], 'dl');
+        $view = $s['is_dir'] ? share_url($s['token'], 'site') : share_url($s['token'], 'view', '', basename($s['path']));
         $exists = file_exists(user_root($me) . '/' . $s['path']); ?>
       <tr>
         <td class="name"><span class="file-icon" data-ext="<?= $s['is_dir'] ? 'dir' : e(strtolower(pathinfo($s['path'], PATHINFO_EXTENSION))) ?>"></span>
@@ -31,6 +32,7 @@ page_header('Mes liens', 'shares');
         <td class="acts">
           <button class="btn sm" data-copy="<?= e($link) ?>">Copier le lien</button>
           <?php if (!$s['is_dir']): ?><button class="btn sm" data-copy="<?= e($direct) ?>">Lien direct</button><?php endif; ?>
+          <button class="btn sm" data-copy="<?= e($view) ?>" title="<?= $s['is_dir'] ? 'Adresse de base : ajoutez le chemin du fichier à la fin' : 'Affichage dans le navigateur / WebView' ?>"><?= $s['is_dir'] ? 'Lien web' : 'Lien lecture' ?></button>
           <a class="btn sm" href="<?= e($link) ?>" target="_blank" rel="noopener">Ouvrir</a>
         </td>
         <td class="hide-sm"><?= (int)$s['downloads'] ?></td>

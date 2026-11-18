@@ -13,8 +13,14 @@ Espace de stockage privé pour créateurs d’applications mobiles, à installer
 - **Modifier en ligne** les fichiers texte (json, xml, yaml, txt, md, dart, kt, js…) — Ctrl+S pour enregistrer.
 - **🔗 Lien** sur chaque fichier/dossier :
   - page de téléchargement : `https://bd.yabiso.cloud/s/JETON`
-  - lien direct (fichier) : `https://bd.yabiso.cloud/s/JETON/dl`
-  - fichier dans un dossier partagé : `https://bd.yabiso.cloud/s/JETON/f/chemin/fichier.json`
+  - téléchargement direct : `https://bd.yabiso.cloud/s/JETON/dl`
+  - **lecture directe** (affichage dans le navigateur, une WebView, `fetch()`…) :
+    `https://bd.yabiso.cloud/s/JETON/v/config.json` — JSON, HTML, CSS, JS, images, SVG, PDF,
+    vidéo, audio, polices… avec le bon `Content-Type`, CORS ouvert (`Access-Control-Allow-Origin: *`),
+    cache court + ETag.
+  - **site d’un dossier** (WebView) : `https://bd.yabiso.cloud/s/JETON/f/` ouvre `index.html`,
+    et les chemins relatifs (`css/app.css`, `img/logo.png`) fonctionnent.
+  - fichier d’un dossier partagé : `https://bd.yabiso.cloud/s/JETON/f/chemin/fichier.json`
   - dossier partagé téléchargeable en ZIP.
 - Les liens suivent les fichiers renommés/déplacés ; page « Mes liens » pour les désactiver.
 - Quota (200 Mo par défaut) avec barre d’utilisation.
@@ -52,12 +58,25 @@ l’administration.
   ```nginx
   location ~ ^/(data|storage|inc)/ { deny all; }
   location ~ ^/s/([A-Za-z0-9_-]+)/dl/?$ { rewrite ^/s/([^/]+)/dl/?$ /s.php?t=$1&dl=1 last; }
+  location ~ ^/s/([A-Za-z0-9_-]+)/v(/.*)?$ { rewrite ^/s/([^/]+)/v(/.*)?$ /s.php?t=$1&raw=1 last; }
+  location ~ ^/s/([A-Za-z0-9_-]+)/f/?$ { rewrite ^/s/([^/]+)/f/?$ /s.php?t=$1&raw=1 last; }
   location ~ ^/s/([A-Za-z0-9_-]+)/f/(.+)$ { rewrite ^/s/([^/]+)/f/(.+)$ /s.php?t=$1&p=$2&raw=1 last; }
   location ~ ^/s/([A-Za-z0-9_-]+)/?$ { rewrite ^/s/([^/]+)/?$ /s.php?t=$1 last; }
   ```
   Sans réécriture d’URL, décochez « Liens courts » dans l’administration.
 - Mots de passe hachés (bcrypt), protection CSRF, limitation des tentatives de connexion,
   protection contre la traversée de chemins.
+
+### Pages HTML partagées et WebView
+Un fichier HTML d’un membre affiché sur `bd.yabiso.cloud` pourrait, s’il était malveillant,
+voler la session d’un administrateur. Par défaut, le HTML/SVG est donc servi en **mode isolé**
+(`CSP sandbox`) : les scripts, formulaires et CDN fonctionnent, mais pas les cookies ni le
+`localStorage`.
+
+Pour des sites/WebView sans restriction, créez un **2ᵉ sous-domaine** (ex. `files.yabiso.cloud`)
+dont la racine est **le même dossier** que `bd.yabiso.cloud`, activez le SSL, puis indiquez-le
+dans Administration › Paramètres › « Domaine des contenus ». Les liens de lecture utiliseront ce
+domaine (sans session, sans accès au panneau) et le HTML y sera servi normalement.
 
 ### Sauvegarde
 Sauvegardez les dossiers `data/` et `storage/`.

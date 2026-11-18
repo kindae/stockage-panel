@@ -169,9 +169,15 @@ try {
                 ->execute([$token, $owner['id'], $rel, is_dir($abs) ? 1 : 0]);
             log_action('share', $owner['folder'] . '/' . $rel);
         }
-        json_out(['ok' => true, 'token' => $token, 'is_dir' => is_dir($abs),
-            'url' => share_url($token), 'direct' => share_url($token, true),
-            'name' => $rel === '' ? $owner['folder'] : basename($rel)]);
+        $isDir = is_dir($abs);
+        $name = $rel === '' ? $owner['folder'] : basename($rel);
+        json_out(['ok' => true, 'token' => $token, 'is_dir' => $isDir, 'name' => $name,
+            'url' => share_url($token),
+            'direct' => $isDir ? null : share_url($token, 'dl'),
+            'view' => $isDir ? null : (raw_viewable(mime_of($abs)) ? share_url($token, 'view', '', $name) : null),
+            'site' => $isDir && (is_file($abs . '/index.html') || is_file($abs . '/index.htm')) ? share_url($token, 'site') : null,
+            'files_base' => $isDir ? share_url($token, 'site') : null,
+            'sandboxed' => content_host() === '']);
     }
 
     case 'unshare': {

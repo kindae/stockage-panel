@@ -73,10 +73,43 @@ function parse_size_mb(string $v): ?int {
     return (int)round($n * $mult);
 }
 
-function share_url(string $token, bool $direct = false): string {
+/**
+ * Lien de partage.
+ * $mode : ''     = page de téléchargement
+ *         'dl'   = téléchargement direct
+ *         'view' = lecture directe (JSON, HTML, images… pour navigateur / WebView)
+ *         'site' = dossier partagé ouvert comme site web (index.html)
+ * $sub  : chemin d'un fichier dans un dossier partagé (mode 'view' / 'dl').
+ */
+function share_url(string $token, string $mode = '', string $sub = '', string $name = ''): string {
     $pretty = setting('pretty_urls', '1') === '1';
-    if ($pretty) return url('s/' . $token . ($direct ? '/dl' : ''));
-    return url('s.php?t=' . rawurlencode($token) . ($direct ? '&dl=1' : ''));
+    $enc = fn($p) => implode('/', array_map('rawurlencode', explode('/', $p)));
+    if ($mode === 'site') {
+        if ($pretty) return content_url('s/' . $token . '/f/' . ($sub !== '' ? $enc($sub) . '/' : ''));
+        return content_url('s.php?t=' . rawurlencode($token) . ($sub !== '' ? '&p=' . rawurlencode($sub) : '') . '&raw=1');
+    }
+    if ($mode === 'view') {
+        if ($pretty) return content_url('s/' . $token . ($sub !== '' ? '/f/' . $enc($sub) : '/v/' . ($name !== '' ? rawurlencode($name) : '')));
+        return content_url('s.php?t=' . rawurlencode($token) . ($sub !== '' ? '&p=' . rawurlencode($sub) : '') . '&raw=1');
+    }
+    if ($pretty && $sub === '') return url('s/' . $token . ($mode === 'dl' ? '/dl' : ''));
+    return url('s.php?t=' . rawurlencode($token) . ($sub !== '' ? '&p=' . rawurlencode($sub) : '') . ($mode === 'dl' ? '&dl=1' : ''));
+}
+
+/** Domaine séparé (facultatif) pour servir les contenus en lecture directe, ex. files.yabiso.cloud */
+function content_host(): string {
+    $h = strtolower(trim((string)setting('content_host', '')));
+    return preg_replace('#^https?://|/.*$#', '', $h);
+}
+function on_content_host(): bool {
+    $h = content_host();
+    return $h !== '' && strtolower(preg_replace('/:\d+$/', '', $_SERVER['HTTP_HOST'] ?? '')) === preg_replace('/:\d+$/', '', $h);
+}
+function content_url(string $path): string {
+    $h = content_host();
+    if ($h === '') return url($path);
+    $dir = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')), '/');
+    return 'https://' . $h . $dir . '/' . ltrim($path, '/');
 }
 
 function ini_bytes(string $v): int {

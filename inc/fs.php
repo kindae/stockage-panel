@@ -104,11 +104,16 @@ function is_text_ext(string $ext): bool {
 function mime_of(string $path): string {
     $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
     $map = [
-        'apk' => 'application/vnd.android.package-archive',
-        'aab' => 'application/octet-stream',
-        'ipa' => 'application/octet-stream',
-        'json' => 'application/json', 'svg' => 'image/svg+xml', 'css' => 'text/css',
-        'js' => 'text/javascript', 'mp4' => 'video/mp4', 'webp' => 'image/webp',
+        'apk' => 'application/vnd.android.package-archive', 'aab' => 'application/octet-stream', 'ipa' => 'application/octet-stream',
+        'html' => 'text/html', 'htm' => 'text/html', 'xhtml' => 'application/xhtml+xml',
+        'css' => 'text/css', 'js' => 'text/javascript', 'mjs' => 'text/javascript', 'map' => 'application/json',
+        'json' => 'application/json', 'webmanifest' => 'application/manifest+json', 'xml' => 'application/xml',
+        'txt' => 'text/plain', 'md' => 'text/plain', 'csv' => 'text/csv', 'yml' => 'text/plain', 'yaml' => 'text/plain',
+        'svg' => 'image/svg+xml', 'png' => 'image/png', 'jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'gif' => 'image/gif',
+        'webp' => 'image/webp', 'avif' => 'image/avif', 'ico' => 'image/x-icon', 'bmp' => 'image/bmp',
+        'mp4' => 'video/mp4', 'webm' => 'video/webm', 'mp3' => 'audio/mpeg', 'ogg' => 'audio/ogg', 'wav' => 'audio/wav', 'm4a' => 'audio/mp4',
+        'pdf' => 'application/pdf', 'wasm' => 'application/wasm',
+        'woff' => 'font/woff', 'woff2' => 'font/woff2', 'ttf' => 'font/ttf', 'otf' => 'font/otf',
     ];
     if (isset($map[$ext])) return $map[$ext];
     if (function_exists('mime_content_type')) { $m = @mime_content_type($path); if ($m) return $m; }
@@ -117,36 +122,71 @@ function mime_of(string $path): string {
 
 /** Types sûrs à afficher dans le navigateur (le reste est forcé en téléchargement). */
 function inline_safe(string $mime): bool {
-    return (bool)preg_match('#^(image/(png|jpe?g|gif|webp|bmp|x-icon)|video/|audio/|application/pdf|text/plain)#', $mime);
+    return (bool)preg_match('#^(image/(png|jpe?g|gif|webp|avif|bmp|x-icon)|video/|audio/|application/pdf|text/plain)#', $mime);
 }
 
-/** Envoie un fichier avec support des requêtes partielles (Range). */
-function send_file(string $path, bool $download, ?string $name = null): void {
+/** Types affichables en "lecture directe" (le reste est téléchargé). */
+function raw_viewable(string $mime): bool {
+    return (bool)preg_match('#^(text/|image/|video/|audio/|font/|application/(json|manifest\+json|xml|xhtml\+xml|pdf|wasm))#', $mime);
+}
+
+/** Contenu pouvant exécuter du script s'il est ouvert comme page (HTML, SVG, XML). */
+function is_active_content(string $mime): bool {
+    return (bool)preg_match('#^(text/html|image/svg\+xml|application/(xhtml\+xml|xml))#', $mime);
+}
+
+/**
+ * Envoie un fichier avec support des requêtes partielles (Range).
+ * $mode : true|'download' = téléchargement forcé ; false|'inline' = affichage des types sûrs ;
+ *         'raw' = lecture directe (JSON, HTML, images…) pour navigateur / WebView / application.
+ */
+function send_file(string $path, $mode, ?string $name = null): void {
+    if ($mode === true) $mode = 'download';
+    if ($mode === false) $mode = 'inline';
     if (!is_file($path)) { http_response_code(404); exit('Fichier introuvable.'); }
     $name = $name ?? basename($path);
     $size = filesize($path);
     $mime = mime_of($path);
-    $inline = !$download && inline_safe($mime);
+    $mtime = filemtime($path);
     while (ob_get_level()) ob_end_clean();
     header('X-Content-Type-Options: nosniff');
-    header("Content-Security-Policy: default-src 'none'; img-src 'self'; media-src 'self'; style-src 'unsafe-inline'; sandbox");
-    $risky = (bool)preg_match('#^(text/|image/svg|application/(xhtml|javascript|xml))#', $mime);
-    header('Content-Type: ' . ($inline ? $mime : ($risky ? 'application/octet-stream' : $mime)));
+
+    if ($mode === 'raw') {
+        $inline = raw_viewable($mime);
+        $ctype = $mime . (preg_match('#^text/|json|xml|javascript#', $mime) ? '; charset=utf-8' : '');
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Expose-Headers: Content-Length, Content-Range, ETag');
+        header('Cache-Control: public, max-age=60');
+        // HTML/SVG sur le domaine du panneau : isolé (sandbox) pour protéger les sessions.
+        if (is_active_content($mime) && !on_content_host()) {
+            header('Content-Security-Policy: sandbox allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-modals allow-downloads allow-presentation');
+        }
+        $etag = '"' . dechex($mtime) . '-' . dechex($size) . '"';
+        header('ETag: ' . $etag);
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $mtime) . ' GMT');
+        if (trim($_SERVER['HTTP_IF_NONE_MATCH'] ?? '') === $etag) { http_response_code(304); exit; }
+    } else {
+        $inline = $mode === 'inline' && inline_safe($mime);
+        header("Content-Security-Policy: default-src 'none'; img-src 'self'; media-src 'self'; style-src 'unsafe-inline'; sandbox");
+        $risky = (bool)preg_match('#^(text/|image/svg|application/(xhtml|javascript|xml))#', $mime);
+        $ctype = $inline ? $mime : ($risky ? 'application/octet-stream' : $mime);
+        header('Cache-Control: private, max-age=0');
+    }
+    header('Content-Type: ' . $ctype);
     $disp = $inline ? 'inline' : 'attachment';
     $ascii = preg_replace('/[^\x20-\x7E]|["\\\\]/', '_', $name);
     header("Content-Disposition: $disp; filename=\"$ascii\"; filename*=UTF-8''" . rawurlencode($name));
     header('Accept-Ranges: bytes');
-    header('Cache-Control: private, max-age=0');
     $start = 0; $end = $size - 1;
-    if (isset($_SERVER['HTTP_RANGE']) && preg_match('/bytes=(\d*)-(\d*)/', $_SERVER['HTTP_RANGE'], $m)) {
+    if ($size > 0 && isset($_SERVER['HTTP_RANGE']) && preg_match('/bytes=(\d*)-(\d*)/', $_SERVER['HTTP_RANGE'], $m)) {
         if ($m[1] === '' && $m[2] !== '') { $start = max(0, $size - (int)$m[2]); }
         else { $start = (int)$m[1]; if ($m[2] !== '') $end = min((int)$m[2], $size - 1); }
         if ($start > $end || $start >= $size) { http_response_code(416); header("Content-Range: bytes */$size"); exit; }
         http_response_code(206);
         header("Content-Range: bytes $start-$end/$size");
     }
-    header('Content-Length: ' . ($end - $start + 1));
-    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'HEAD') exit;
+    header('Content-Length: ' . max(0, $end - $start + 1));
+    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'HEAD' || $size === 0) exit;
     $fp = fopen($path, 'rb');
     fseek($fp, $start);
     $left = $end - $start + 1;
