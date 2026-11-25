@@ -10,6 +10,9 @@ $defaults = [
     'storage_dir'   => APP_ROOT . '/storage',
     'max_edit_size' => 2 * 1024 * 1024,
     'timezone'      => 'Africa/Kinshasa',
+    // Base de données : SQLite par défaut (aucune configuration).
+    // Pour MySQL / MariaDB : ['driver' => 'mysql', 'host' => 'localhost', 'port' => 3306, 'name' => '...', 'user' => '...', 'pass' => '...']
+    'db'            => ['driver' => 'sqlite'],
 ];
 $custom = is_file(APP_ROOT . '/config.php') ? (require APP_ROOT . '/config.php') : [];
 $GLOBALS['CFG'] = array_merge($defaults, is_array($custom) ? $custom : []);
@@ -58,4 +61,5 @@ if (!isset($_SESSION)) $_SESSION = [];
 
 require __DIR__ . '/auth.php';
 require __DIR__ . '/fs.php';
+require __DIR__ . '/shares.php';
 require __DIR__ . '/layout.php';

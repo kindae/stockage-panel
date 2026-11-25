@@ -58,7 +58,11 @@ function dir_count(string $dir): array {
     return [$files, $dirs];
 }
 
-function user_usage(array $u): int { return dir_size(user_root($u)); }
+function user_usage(array $u): int {
+    $used = dir_size(user_root($u));
+    if (setting('trash_counts_quota', '1') === '1') $used += trash_size($u);
+    return $used;
+}
 
 function rm_rf(string $path): void {
     if (is_link($path) || is_file($path)) { unlink($path); return; }
@@ -221,8 +225,8 @@ function send_zip(string $dir, string $name): void {
 
 /** Met à jour les liens partagés après renommage / déplacement. */
 function shares_moved(int $uid, string $old, string $new): void {
-    $st = db()->prepare('SELECT id, path FROM shares WHERE user_id = ? AND (path = ? OR path LIKE ?)');
-    $st->execute([$uid, $old, str_replace(['%', '_'], ['\%', '\_'], $old) . '/%']);
+    $st = db()->prepare('SELECT id, path FROM shares WHERE user_id = ?');
+    $st->execute([$uid]);
     $up = db()->prepare('UPDATE shares SET path = ? WHERE id = ?');
     foreach ($st->fetchAll() as $r) {
         if ($r['path'] !== $old && strpos($r['path'], $old . '/') !== 0) continue;
@@ -237,4 +241,119 @@ function shares_deleted(int $uid, string $rel): void {
     foreach ($st->fetchAll() as $r) {
         if ($r['path'] === $rel || strpos($r['path'], $rel . '/') === 0) $del->execute([$r['id']]);
     }
+}
+
+/* ===================== Corbeille ===================== */
+
+function trash_enabled(): bool { return setting('trash_enabled', '1') === '1'; }
+
+function trash_dir(array $u): string {
+    $d = cfg('storage_dir') . '/.trash/' . $u['folder'];
+    if (!is_dir($d)) mkdir($d, 0750, true);
+    return $d;
+}
+
+function trash_size(array $u): int {
+    $st = db()->prepare('SELECT COALESCE(SUM(size), 0) FROM trash WHERE user_id = ?');
+    $st->execute([$u['id']]);
+    return (int)$st->fetchColumn();
+}
+
+/** Déplace un élément vers la corbeille (ou le supprime si la corbeille est désactivée). */
+function trash_put(array $owner, string $rel, ?int $by = null): void {
+    $abs = abs_path(user_root($owner), $rel);
+    if (!file_exists($abs)) return;
+    if (!trash_enabled()) { rm_rf($abs); return; }
+    $stored = bin2hex(random_bytes(12));
+    $size = dir_size($abs);
+    $isDir = is_dir($abs) ? 1 : 0;
+    if (!@rename($abs, trash_dir($owner) . '/' . $stored)) throw new RuntimeException('Impossible de déplacer vers la corbeille.');
+    db()->prepare('INSERT INTO trash(user_id, original_path, name, is_dir, size, stored_name, deleted_by) VALUES(?,?,?,?,?,?,?)')
+        ->execute([$owner['id'], $rel, basename($rel), $isDir, $size, $stored, $by]);
+}
+
+function trash_item(array $owner, int $id): ?array {
+    $st = db()->prepare('SELECT * FROM trash WHERE id = ? AND user_id = ?');
+    $st->execute([$id, $owner['id']]);
+    return $st->fetch() ?: null;
+}
+
+/** Restaure un élément à son emplacement d'origine (renomme en cas de conflit). Retourne le chemin final. */
+function trash_restore(array $owner, int $id): string {
+    $it = trash_item($owner, $id);
+    if (!$it) throw new RuntimeException('Élément introuvable dans la corbeille.');
+    $src = trash_dir($owner) . '/' . $it['stored_name'];
+    if (!file_exists($src)) {
+        db()->prepare('DELETE FROM trash WHERE id = ?')->execute([$id]);
+        throw new RuntimeException('Le contenu de cet élément a disparu du disque.');
+    }
+    if (setting('trash_counts_quota', '1') !== '1' && user_usage($owner) + (int)$it['size'] > user_quota($owner)) {
+        throw new RuntimeException('Espace insuffisant pour restaurer « ' . $it['name'] . ' ».');
+    }
+    $root = user_root($owner);
+    $parent = dirname($it['original_path']) === '.' ? '' : dirname($it['original_path']);
+    $parentAbs = abs_path($root, $parent);
+    if (!is_dir($parentAbs)) mkdir($parentAbs, 0750, true);
+    $name = unique_name($parentAbs, $it['name']);
+    rename($src, $parentAbs . '/' . $name);
+    db()->prepare('DELETE FROM trash WHERE id = ?')->execute([$id]);
+    return ltrim($parent . '/' . $name, '/');
+}
+
+function trash_purge_item(array $owner, array $it): void {
+    rm_rf(trash_dir($owner) . '/' . $it['stored_name']);
+    db()->prepare('DELETE FROM trash WHERE id = ?')->execute([$it['id']]);
+}
+
+/** Supprime définitivement les éléments plus anciens que le délai réglé (tous les membres). */
+function trash_autopurge(): int {
+    $days = max(1, (int)setting('trash_days', '30'));
+    $st = db()->prepare('SELECT t.*, u.folder FROM trash t JOIN users u ON u.id = t.user_id WHERE t.deleted_at < ?');
+    $st->execute([db_time(-$days * 86400)]);
+    $n = 0;
+    foreach ($st->fetchAll() as $it) { trash_purge_item(['folder' => $it['folder'], 'id' => $it['user_id']], $it); $n++; }
+    return $n;
+}
+
+/* ===================== Copie ===================== */
+
+function copy_rec(string $src, string $dst): void {
+    if (is_dir($src)) {
+        mkdir($dst, 0750, true);
+        foreach (new FilesystemIterator($src) as $f) copy_rec($f->getPathname(), $dst . '/' . $f->getFilename());
+    } else {
+        if (!copy($src, $dst)) throw new RuntimeException('Copie impossible : ' . basename($src));
+    }
+}
+
+/** Nom de copie : "photo (copie).png", "photo (copie 2).png"… */
+function copy_name(string $dir, string $name): string {
+    if (!file_exists($dir . '/' . $name)) return $name;
+    $ext = pathinfo($name, PATHINFO_EXTENSION);
+    $isFile = is_file($dir . '/' . $name) && $ext !== '';
+    $base = $isFile ? substr($name, 0, -strlen($ext) - 1) : $name;
+    for ($i = 1; ; $i++) {
+        $cand = $base . ' (copie' . ($i > 1 ? ' ' . $i : '') . ')' . ($isFile ? '.' . $ext : '');
+        if (!file_exists($dir . '/' . $cand)) return $cand;
+    }
+}
+
+/* ===================== Recherche ===================== */
+
+function search_files(string $root, string $q, int $limit = 200): array {
+    $q = mb_strtolower(trim($q));
+    $out = [];
+    if ($q === '') return $out;
+    $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root, FilesystemIterator::SKIP_DOTS), RecursiveIteratorIterator::SELF_FIRST);
+    foreach ($it as $f) {
+        $name = $f->getFilename();
+        if (preg_match('/^\.ht/i', $name)) continue;
+        if (mb_strpos(mb_strtolower($name), $q) === false) continue;
+        $rel = str_replace('\\', '/', substr($f->getPathname(), strlen($root) + 1));
+        $isDir = $f->isDir();
+        $out[] = ['name' => $name, 'path' => $rel, 'dir' => $isDir, 'size' => $isDir ? null : $f->getSize(),
+                  'mtime' => $f->getMTime(), 'ext' => $isDir ? '' : strtolower($f->getExtension())];
+        if (count($out) >= $limit) break;
+    }
+    return $out;
 }

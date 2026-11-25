@@ -45,19 +45,51 @@ function needs_setup(): bool {
 
 function valid_username(string $u): bool { return (bool)preg_match('/^[a-zA-Z0-9][a-zA-Z0-9_.-]{2,31}$/', $u); }
 
-function create_user(string $username, string $display, string $email, string $password, string $role = 'user'): int {
+function create_user(string $username, string $display, string $email, string $password, string $role = 'user', ?int $quota = null, ?int $inviteId = null): int {
     $folder = strtolower($username);
-    $st = db()->prepare('INSERT INTO users(username, display_name, email, password_hash, role, folder) VALUES(?,?,?,?,?,?)');
-    $st->execute([$username, $display, $email, password_hash($password, PASSWORD_DEFAULT), $role, $folder]);
+    $st = db()->prepare('INSERT INTO users(username, display_name, email, password_hash, role, folder, quota_bytes, invite_code_id) VALUES(?,?,?,?,?,?,?,?)');
+    $st->execute([$username, $display, $email !== '' ? $email : null, password_hash($password, PASSWORD_DEFAULT), $role, $folder, $quota, $inviteId]);
     $id = (int)db()->lastInsertId();
     $dir = cfg('storage_dir') . '/' . $folder;
     if (!is_dir($dir)) mkdir($dir, 0750, true);
     return $id;
 }
 
-function login_throttled(): bool {
-    $ip = $_SERVER['REMOTE_ADDR'] ?? '';
-    $st = db()->prepare("SELECT COUNT(*) FROM logs WHERE action = 'login_fail' AND ip = ? AND created_at > datetime('now', '-15 minutes')");
-    $st->execute([$ip]);
-    return (int)$st->fetchColumn() >= 10;
+function login_throttled(): bool { return recent_actions('login_fail') >= 10; }
+
+/* ===================== Codes d'invitation ===================== */
+
+function normalize_code(string $c): string { return strtoupper(preg_replace('/[\s-]+/', '', trim($c))); }
+
+/** Code d'invitation correspondant (actif ou non), ou null. */
+function find_invite(string $code): ?array {
+    $n = normalize_code($code);
+    if ($n === '') return null;
+    foreach (db()->query('SELECT * FROM invite_codes')->fetchAll() as $row) {
+        if (hash_equals(normalize_code($row['code']), $n)) return $row;
+    }
+    return null;
+}
+
+/** Raison pour laquelle un code ne peut pas être utilisé, ou null. */
+function invite_problem(array $c): ?string {
+    if (!$c['active']) return 'Ce code d’invitation a été désactivé.';
+    if (!empty($c['expires_at']) && is_past($c['expires_at'])) return 'Ce code d’invitation a expiré.';
+    if ($c['max_uses'] !== null && (int)$c['uses'] >= (int)$c['max_uses']) return 'Ce code d’invitation a déjà été utilisé le nombre de fois prévu.';
+    return null;
+}
+
+/** Réserve une utilisation du code (atomique). */
+function invite_consume(int $id): bool {
+    $st = db()->prepare('UPDATE invite_codes SET uses = uses + 1 WHERE id = ? AND active = 1 AND (max_uses IS NULL OR uses < max_uses)');
+    $st->execute([$id]);
+    return $st->rowCount() === 1;
+}
+
+function invite_status(array $c): array {
+    $p = invite_problem($c);
+    if ($p === null) return ['ok', 'actif'];
+    if (!$c['active']) return ['', 'désactivé'];
+    if (!empty($c['expires_at']) && is_past($c['expires_at'])) return ['danger', 'expiré'];
+    return ['danger', 'épuisé'];
 }

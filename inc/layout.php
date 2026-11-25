@@ -11,7 +11,7 @@ function page_header(string $title, string $active = ''): void {
 <meta name="csrf" content="<?= e(csrf_token()) ?>">
 <title><?= e($title) ?> · <?= e($app) ?></title>
 <link rel="icon" href="<?= e(url('assets/logo.svg')) ?>" type="image/svg+xml">
-<link rel="stylesheet" href="<?= e(url('assets/style.css')) ?>?v=2">
+<link rel="stylesheet" href="<?= e(url('assets/style.css')) ?>?v=3">
 </head>
 <body>
 <header class="topbar">
@@ -41,7 +41,7 @@ function page_footer(): void {
     ?></main>
 <footer class="foot"><?= e(cfg('app_name')) ?> · espace de stockage pour créateurs d’applications</footer>
 <div id="toast" class="toast" hidden></div>
-<script src="<?= e(url('assets/app.js')) ?>?v=2"></script>
+<script src="<?= e(url('assets/app.js')) ?>?v=3"></script>
 </body>
 </html><?php
 }

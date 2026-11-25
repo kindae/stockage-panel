@@ -28,21 +28,28 @@ page_header('Mes fichiers', $asOther ? 'admin' : 'files');
       <label class="btn">⬆ Fichiers<input type="file" id="upFiles" multiple hidden></label>
       <label class="btn">⬆ Dossier<input type="file" id="upDir" webkitdirectory directory multiple hidden></label>
       <button class="btn" data-act="sharecur" title="Obtenir le lien du dossier courant">🔗 Lien du dossier</button>
+      <a class="btn" id="trashBtn" href="<?= e(url('trash.php' . ($asOther ? '?as=' . (int)$owner['id'] : ''))) ?>" title="Corbeille">🗑 Corbeille</a>
     </div>
   </div>
+  <form class="searchbox" id="searchForm" role="search">
+    <input type="search" id="searchInput" placeholder="Rechercher un fichier ou un dossier dans tout mon espace…" aria-label="Rechercher">
+    <button class="btn">🔎 Rechercher</button>
+    <button type="button" class="btn" id="searchClear" hidden>✕ Fermer la recherche</button>
+  </form>
 
   <nav class="crumbs" id="crumbs"></nav>
 
   <div class="selbar" id="selbar" hidden>
     <span id="selcount"></span>
     <button class="btn sm" data-act="movesel">Déplacer</button>
+    <button class="btn sm" data-act="copysel">Copier</button>
     <button class="btn sm danger" data-act="delsel">Supprimer</button>
     <button class="btn sm" data-act="clearsel">Annuler</button>
   </div>
 
   <div class="dropzone" id="dropzone">
     <table class="files">
-      <thead><tr><th class="chk"><input type="checkbox" id="chkall" aria-label="Tout sélectionner"></th><th>Nom</th><th class="hide-sm">Taille</th><th class="hide-sm">Modifié</th><th class="right">Actions</th></tr></thead>
+      <thead><tr><th class="chk"><input type="checkbox" id="chkall" aria-label="Tout sélectionner"></th><th class="sortable" data-sort="name">Nom</th><th class="hide-sm sortable" data-sort="size">Taille</th><th class="hide-sm sortable" data-sort="mtime">Modifié</th><th class="right">Actions</th></tr></thead>
       <tbody id="list"><tr><td colspan="5" class="center muted">Chargement…</td></tr></tbody>
     </table>
     <div class="drophint">Déposez vos fichiers ou dossiers ici</div>
