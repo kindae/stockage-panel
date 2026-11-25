@@ -2,7 +2,7 @@
 
 Liste de fonctionnalités **qui n'existent pas encore** dans la plateforme (ce qui est déjà en place n'est pas repris : inscription par code renouvelé, dossier personnel, envoi de fichiers et de dossiers, renommer / déplacer / supprimer, éditeur texte, liens de partage, de téléchargement, de lecture directe et de site, ZIP, quotas par défaut et par membre, rôles admin / modérateur, suspension, journal, domaine des contenus `files.yabiso.cloud`…).
 
-Cochez une case (`[x]`) quand une fonctionnalité est réalisée.
+Cochez une case (`[x]`) quand une fonctionnalité est réalisée. Lot 1 réalisé : 31 idées cochées.
 
 ## Sommaire
 
@@ -34,7 +34,7 @@ Cochez une case (`[x]`) quand une fonctionnalité est réalisée.
 
 ## 1. 📁 Gestion des fichiers et dossiers
 
-- [ ] **1.** Copier / dupliquer un fichier ou un dossier
+- [x] **1.** Copier / dupliquer un fichier ou un dossier
 - [ ] **2.** Couper-coller entre dossiers (presse-papiers interne)
 - [ ] **3.** Glisser-déposer un élément sur un dossier pour le déplacer
 - [ ] **4.** Glisser-déposer vers le fil d'Ariane pour remonter d'un niveau
@@ -55,7 +55,7 @@ Cochez une case (`[x]`) quand une fonctionnalité est réalisée.
 - [ ] **19.** Télécharger une sélection multiple en un seul ZIP
 - [ ] **20.** Vue en grille avec miniatures
 - [ ] **21.** Vue en liste compacte
-- [ ] **22.** Tri par nom, taille, date ou type (clic sur les colonnes)
+- [x] **22.** Tri par nom, taille, date ou type (clic sur les colonnes)
 - [ ] **23.** Mémoriser le tri et la vue choisis par l'utilisateur
 - [ ] **24.** Affichage de la taille calculée de chaque dossier
 - [ ] **25.** Nombre d'éléments affiché pour chaque dossier
@@ -206,13 +206,13 @@ Cochez une case (`[x]`) quand une fonctionnalité est réalisée.
 
 ## 5. 🔗 Partage et liens
 
-- [ ] **161.** Date d'expiration sur un lien
-- [ ] **162.** Mot de passe sur un lien
-- [ ] **163.** Nombre maximum de téléchargements par lien
+- [x] **161.** Date d'expiration sur un lien
+- [x] **162.** Mot de passe sur un lien
+- [x] **163.** Nombre maximum de téléchargements par lien
 - [ ] **164.** Désactivation automatique après la première ouverture (lien à usage unique)
 - [ ] **165.** Lien personnalisé lisible (ex. /s/mon-app-v2)
 - [ ] **166.** Plusieurs liens différents pour le même fichier
-- [ ] **167.** Nom / note sur chaque lien pour s'en souvenir
+- [x] **167.** Nom / note sur chaque lien pour s'en souvenir
 - [ ] **168.** QR code généré pour chaque lien
 - [ ] **169.** Télécharger le QR code en PNG / SVG
 - [ ] **170.** Partage en un clic vers WhatsApp
@@ -245,7 +245,7 @@ Cochez une case (`[x]`) quand une fonctionnalité est réalisée.
 - [ ] **197.** Code d'intégration (iframe / balise img) à copier
 - [ ] **198.** Raccourcisseur de lien intégré
 - [ ] **199.** Lien de téléchargement direct de plusieurs fichiers sélectionnés
-- [ ] **200.** Désactiver temporairement un lien sans le supprimer
+- [x] **200.** Désactiver temporairement un lien sans le supprimer
 
 ## 6. 🔐 Sécurité des comptes
 
@@ -254,7 +254,7 @@ Cochez une case (`[x]`) quand une fonctionnalité est réalisée.
 - [ ] **203.** Double authentification obligatoire pour les admins et modérateurs
 - [ ] **204.** Connexion par clé d'accès (passkey / WebAuthn)
 - [ ] **205.** Connexion par lien magique envoyé par e-mail
-- [ ] **206.** Mot de passe oublié avec réinitialisation par e-mail
+- [x] **206.** Mot de passe oublié avec réinitialisation par e-mail
 - [ ] **207.** Vérification de l'adresse e-mail à l'inscription
 - [ ] **208.** Indicateur de robustesse du mot de passe
 - [ ] **209.** Refus des mots de passe connus comme compromis
@@ -335,7 +335,7 @@ Cochez une case (`[x]`) quand une fonctionnalité est réalisée.
 
 ## 8. 🧑‍💼 Administration et modération
 
-- [ ] **281.** Recherche de membres par nom, e-mail ou identifiant
+- [x] **281.** Recherche de membres par nom, e-mail ou identifiant
 - [ ] **282.** Filtres de membres (rôle, actif, suspendu, quota plein)
 - [ ] **283.** Tri des membres par espace utilisé, date ou dernière connexion
 - [ ] **284.** Pagination de la liste des membres
@@ -421,15 +421,15 @@ Cochez une case (`[x]`) quand une fonctionnalité est réalisée.
 
 ## 10. 🎟️ Inscription et codes d'invitation
 
-- [ ] **361.** Plusieurs codes d'inscription actifs en même temps
-- [ ] **362.** Code avec nombre d'utilisations limité (ex. 5 inscriptions)
-- [ ] **363.** Code avec date d'expiration
-- [ ] **364.** Code lié à un quota spécifique
-- [ ] **365.** Code lié à un rôle spécifique
+- [x] **361.** Plusieurs codes d'inscription actifs en même temps
+- [x] **362.** Code avec nombre d'utilisations limité (ex. 5 inscriptions)
+- [x] **363.** Code avec date d'expiration
+- [x] **364.** Code lié à un quota spécifique
+- [x] **365.** Code lié à un rôle spécifique
 - [ ] **366.** Code lié à un groupe / une équipe
-- [ ] **367.** Nom / note sur chaque code (pour qui il a été créé)
-- [ ] **368.** Historique des codes et des membres inscrits avec chacun
-- [ ] **369.** Lien d'inscription avec code prérempli
+- [x] **367.** Nom / note sur chaque code (pour qui il a été créé)
+- [x] **368.** Historique des codes et des membres inscrits avec chacun
+- [x] **369.** Lien d'inscription avec code prérempli
 - [ ] **370.** QR code du lien d'inscription
 - [ ] **371.** Envoi d'une invitation par e-mail avec code unique
 - [ ] **372.** Envoi d'une invitation par WhatsApp
@@ -452,12 +452,12 @@ Cochez une case (`[x]`) quand une fonctionnalité est réalisée.
 - [ ] **389.** Fichier README de bienvenue dans le dossier du membre
 - [ ] **390.** Période d'essai avec quota réduit
 - [ ] **391.** Statistiques des inscriptions par code
-- [ ] **392.** Désactivation immédiate d'un code compromis
+- [x] **392.** Désactivation immédiate d'un code compromis
 - [ ] **393.** Code affiché en grand pour être dicté facilement
 - [ ] **394.** Codes sans caractères ambigus (0/O, 1/I) — paramétrable
 - [ ] **395.** Longueur du code réglable
 - [ ] **396.** Masquer le code à l'écran jusqu'au clic (confidentialité)
-- [ ] **397.** Copier un message d'invitation tout prêt (texte + lien + code)
+- [x] **397.** Copier un message d'invitation tout prêt (texte + lien + code)
 - [ ] **398.** Notification admin à chaque nouvelle inscription
 - [ ] **399.** Notification au parrain quand son invité s'inscrit
 - [ ] **400.** Parrainage avec bonus de quota
@@ -636,8 +636,8 @@ Cochez une case (`[x]`) quand une fonctionnalité est réalisée.
 
 ## 15. 🔎 Recherche et organisation
 
-- [ ] **561.** Barre de recherche de fichiers par nom
-- [ ] **562.** Recherche dans tous les sous-dossiers
+- [x] **561.** Barre de recherche de fichiers par nom
+- [x] **562.** Recherche dans tous les sous-dossiers
 - [ ] **563.** Recherche dans le contenu des fichiers texte
 - [ ] **564.** Filtres de recherche par type de fichier
 - [ ] **565.** Filtres par taille
@@ -679,11 +679,11 @@ Cochez une case (`[x]`) quand une fonctionnalité est réalisée.
 
 ## 16. 🗂️ Versions et corbeille
 
-- [ ] **601.** Corbeille au lieu de suppression définitive
-- [ ] **602.** Restaurer un élément depuis la corbeille
-- [ ] **603.** Vider la corbeille
-- [ ] **604.** Suppression automatique de la corbeille après 30 jours (réglable)
-- [ ] **605.** Corbeille comptée ou non dans le quota (réglable)
+- [x] **601.** Corbeille au lieu de suppression définitive
+- [x] **602.** Restaurer un élément depuis la corbeille
+- [x] **603.** Vider la corbeille
+- [x] **604.** Suppression automatique de la corbeille après 30 jours (réglable)
+- [x] **605.** Corbeille comptée ou non dans le quota (réglable)
 - [ ] **606.** Historique des versions d'un fichier
 - [ ] **607.** Restaurer une version précédente
 - [ ] **608.** Télécharger une version précédente
@@ -698,8 +698,8 @@ Cochez une case (`[x]`) quand une fonctionnalité est réalisée.
 - [ ] **617.** Protection contre la suppression accidentelle de gros dossiers
 - [ ] **618.** Confirmation renforcée pour supprimer plus de N fichiers
 - [ ] **619.** Annulation de la suppression pendant quelques secondes
-- [ ] **620.** Restauration par l'admin d'un fichier supprimé par un membre
-- [ ] **621.** Journal de qui a supprimé quoi
+- [x] **620.** Restauration par l'admin d'un fichier supprimé par un membre
+- [x] **621.** Journal de qui a supprimé quoi
 - [ ] **622.** Récupération après rançongiciel (versions immuables)
 - [ ] **623.** Verrouillage légal (rétention obligatoire) d'un dossier
 - [ ] **624.** Purge définitive sécurisée (écrasement)
@@ -712,7 +712,7 @@ Cochez une case (`[x]`) quand une fonctionnalité est réalisée.
 - [ ] **631.** Historique de renommage et déplacement d'un fichier
 - [ ] **632.** Lien de partage conservé après restauration
 - [ ] **633.** Notification avant suppression automatique
-- [ ] **634.** Vider la corbeille d'un membre (admin)
+- [x] **634.** Vider la corbeille d'un membre (admin)
 - [ ] **635.** Statistiques des suppressions
 - [ ] **636.** Restaurer vers un autre dossier
 - [ ] **637.** Versionnement automatique des APK par numéro de version
@@ -905,7 +905,7 @@ Cochez une case (`[x]`) quand une fonctionnalité est réalisée.
 - [ ] **809.** Création des ZIP en flux (sans fichier temporaire)
 - [ ] **810.** File de tâches en arrière-plan (ZIP, miniatures, antivirus)
 - [ ] **811.** Tâches planifiées (cron) pour le nettoyage
-- [ ] **812.** Passage possible de SQLite à MySQL / MariaDB
+- [x] **812.** Passage possible de SQLite à MySQL / MariaDB
 - [ ] **813.** Passage possible à PostgreSQL
 - [ ] **814.** Cache Redis pour les sessions (option)
 - [ ] **815.** Sessions stockées en base de données
@@ -959,7 +959,7 @@ Cochez une case (`[x]`) quand une fonctionnalité est réalisée.
 - [ ] **860.** Mode maintenance avec message personnalisé
 - [ ] **861.** Accès admin pendant la maintenance
 - [ ] **862.** Vérification de compatibilité avant mise à jour
-- [ ] **863.** Migrations de base de données automatiques
+- [x] **863.** Migrations de base de données automatiques
 - [ ] **864.** Assistant d'installation guidé (vérification PHP, droits)
 - [ ] **865.** Installation en un clic via Softaculous (paquet)
 - [ ] **866.** Image Docker officielle

@@ -19,7 +19,7 @@ DirectoryIndex index.php
 
 # Protéger les dossiers internes
 <IfModule mod_rewrite.c>
-  RewriteRule ^(data|storage|inc)(/|$) - [F,L]
+  RewriteRule ^(data|storage|inc|database|bin|docs)(/|$) - [F,L]
 </IfModule>
 <FilesMatch "^(config\.php|config\.sample\.php|\.user\.ini|README\.md)$">
   <IfModule mod_authz_core.c>

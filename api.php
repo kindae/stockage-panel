@@ -35,8 +35,11 @@ try {
             $it['shared'] = isset($shared[$p]);
             $it['editable'] = !$it['dir'] && is_text_ext($it['ext']) && $it['size'] <= cfg('max_edit_size');
         }
+        if (random_int(1, 40) === 1) trash_autopurge();
         $used = user_usage($owner);
+        $tc = db()->prepare('SELECT COUNT(*) FROM trash WHERE user_id = ?'); $tc->execute([$owner['id']]);
         json_out(['ok' => true, 'path' => $rel, 'items' => $items, 'used' => $used, 'quota' => user_quota($owner),
+            'trash_count' => (int)$tc->fetchColumn(), 'trash_enabled' => trash_enabled(),
             'max_upload' => max_upload_bytes()]);
     }
 
@@ -123,11 +126,11 @@ try {
             if ($rel === '') throw new RuntimeException('Impossible de supprimer votre dossier racine.');
             $abs = abs_path($root, $rel);
             if (!file_exists($abs)) continue;
-            rm_rf($abs);
+            trash_put($owner, $rel, (int)$me['id']);
             shares_deleted((int)$owner['id'], $rel);
-            log_action('delete', $owner['folder'] . '/' . $rel);
+            log_action(trash_enabled() ? 'trash' : 'delete', $owner['folder'] . '/' . $rel);
         }
-        json_out(['ok' => true]);
+        json_out(['ok' => true, 'trash' => trash_enabled()]);
     }
 
     case 'read': {
@@ -160,24 +163,38 @@ try {
         $rel = clean_rel($_POST['path'] ?? '');
         $abs = abs_path($root, $rel);
         if (!file_exists($abs)) throw new RuntimeException('Élément introuvable.');
-        $st = db()->prepare('SELECT token FROM shares WHERE user_id = ? AND path = ?');
-        $st->execute([$owner['id'], $rel]);
-        $token = $st->fetchColumn();
-        if (!$token) {
-            $token = random_token(9);
+        $share = share_find($owner, $rel);
+        if (!$share) {
             db()->prepare('INSERT INTO shares(token, user_id, path, is_dir) VALUES(?,?,?,?)')
-                ->execute([$token, $owner['id'], $rel, is_dir($abs) ? 1 : 0]);
+                ->execute([random_token(9), $owner['id'], $rel, is_dir($abs) ? 1 : 0]);
             log_action('share', $owner['folder'] . '/' . $rel);
+            $share = share_find($owner, $rel);
         }
-        $isDir = is_dir($abs);
-        $name = $rel === '' ? $owner['folder'] : basename($rel);
-        json_out(['ok' => true, 'token' => $token, 'is_dir' => $isDir, 'name' => $name,
-            'url' => share_url($token),
-            'direct' => $isDir ? null : share_url($token, 'dl'),
-            'view' => $isDir ? null : (raw_viewable(mime_of($abs)) ? share_url($token, 'view', '', $name) : null),
-            'site' => $isDir && (is_file($abs . '/index.html') || is_file($abs . '/index.htm')) ? share_url($token, 'site') : null,
-            'files_base' => $isDir ? share_url($token, 'site') : null,
-            'sandboxed' => content_host() === '']);
+        json_out(share_payload($owner, $share, $abs));
+    }
+
+    case 'share_options': {
+        $rel = clean_rel($_POST['path'] ?? '');
+        $abs = abs_path($root, $rel);
+        $share = share_find($owner, $rel);
+        if (!$share || !file_exists($abs)) throw new RuntimeException('Lien introuvable.');
+        $exp = local_to_utc((string)($_POST['expires_at'] ?? ''));
+        if (($_POST['expires_at'] ?? '') !== '' && $exp === null) throw new RuntimeException('Date d’expiration invalide.');
+        $max = trim((string)($_POST['max_downloads'] ?? ''));
+        if ($max !== '' && (!ctype_digit($max) || (int)$max < 1)) throw new RuntimeException('Limite de téléchargements invalide.');
+        $pwHash = $share['password_hash'];
+        if (!empty($_POST['remove_password'])) $pwHash = null;
+        $pw = (string)($_POST['password'] ?? '');
+        if ($pw !== '') {
+            if (strlen($pw) < 4) throw new RuntimeException('Mot de passe du lien : 4 caractères minimum.');
+            $pwHash = password_hash($pw, PASSWORD_DEFAULT);
+        }
+        $downloads = !empty($_POST['reset_counter']) ? 0 : (int)$share['downloads'];
+        db()->prepare('UPDATE shares SET note = ?, expires_at = ?, max_downloads = ?, password_hash = ?, disabled = ?, downloads = ? WHERE id = ?')
+            ->execute([mb_substr(trim((string)($_POST['note'] ?? '')), 0, 200) ?: null, $exp, $max === '' ? null : (int)$max,
+                       $pwHash, !empty($_POST['disabled']) ? 1 : 0, $downloads, $share['id']]);
+        log_action('share_options', $owner['folder'] . '/' . $rel);
+        json_out(share_payload($owner, share_find($owner, $rel), $abs));
     }
 
     case 'unshare': {
@@ -186,6 +203,39 @@ try {
         $st->execute([$owner['id'], $rel, (string)($_POST['token'] ?? '')]);
         log_action('unshare', $owner['folder'] . '/' . $rel);
         json_out(['ok' => true]);
+    }
+
+    case 'copy': {
+        $paths = (array)($_POST['paths'] ?? []);
+        $dest = clean_rel($_POST['dest'] ?? '');
+        $destAbs = abs_path($root, $dest);
+        if (!is_dir($destAbs)) throw new RuntimeException('Dossier de destination introuvable.');
+        $need = 0; $srcs = [];
+        foreach ($paths as $p) {
+            $rel = clean_rel($p);
+            if ($rel === '') throw new RuntimeException('Impossible de copier le dossier racine.');
+            $abs = abs_path($root, $rel);
+            if (!file_exists($abs)) throw new RuntimeException('Élément introuvable : ' . $rel);
+            if (is_dir($abs) && ($dest === $rel || strpos($dest . '/', $rel . '/') === 0)) throw new RuntimeException('Impossible de copier un dossier dans lui-même.');
+            $need += dir_size($abs); $srcs[] = [$rel, $abs];
+        }
+        if (user_usage($owner) + $need > user_quota($owner)) {
+            throw new RuntimeException('Espace insuffisant : la copie nécessite ' . human_size($need) . '.');
+        }
+        $names = [];
+        foreach ($srcs as [$rel, $abs]) {
+            $name = copy_name($destAbs, basename($rel));
+            copy_rec($abs, $destAbs . '/' . $name);
+            $names[] = $name;
+            log_action('copy', $rel . ' → ' . ltrim($dest . '/' . $name, '/'));
+        }
+        json_out(['ok' => true, 'names' => $names]);
+    }
+
+    case 'search': {
+        $q = trim((string)($_GET['q'] ?? ''));
+        if (mb_strlen($q) < 2) throw new RuntimeException('Tapez au moins 2 caractères.');
+        json_out(['ok' => true, 'results' => search_files($root, $q)]);
     }
 
     case 'tree': {

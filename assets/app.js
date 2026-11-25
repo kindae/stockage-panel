@@ -24,7 +24,9 @@
 
   // ---------- gestionnaire de fichiers ----------
   const API = fm.dataset.api, DL = fm.dataset.dl, AS = fm.dataset.as, ROOT = fm.dataset.root;
-  let cwd = '', items = [], selected = new Set(), maxUpload = 0;
+  let cwd = '', items = [], selected = new Set(), maxUpload = 0, trashOn = true, lastList = null, searchQ = '';
+  let sort = { key: 'name', dir: 'asc' };
+  try { sort = JSON.parse(localStorage.getItem('ys_sort')) || sort; } catch {}
 
   const human = b => { if (b == null) return '—'; const u = ['o','Ko','Mo','Go','To']; let i = 0; b = +b; while (b >= 1024 && i < 4) { b /= 1024; i++; } return (i ? b.toFixed(b < 10 ? 2 : 1).replace('.', ',') : b) + ' ' + u[i]; };
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -47,33 +49,65 @@
   }
   const dlUrl = (p, dl) => DL + '?' + new URLSearchParams(Object.assign({ path: p }, dl ? { dl: 1 } : {}, AS ? { as: AS } : {}));
 
+  const pathOf = it => it.path !== undefined ? it.path : join(cwd, it.name);
+
+  function sortItems() {
+    const k = sort.key, m = sort.dir === 'asc' ? 1 : -1;
+    items.sort((a, b) => {
+      if (a.dir !== b.dir) return a.dir ? -1 : 1;
+      if (k === 'name') return m * a.name.localeCompare(b.name, 'fr', { numeric: true, sensitivity: 'base' });
+      return m * (((a[k] || 0) - (b[k] || 0)) || a.name.localeCompare(b.name, 'fr', { numeric: true }));
+    });
+    document.querySelectorAll('th.sortable').forEach(th => (th.dataset.dir = th.dataset.sort === k ? sort.dir : ''));
+  }
+
   async function load(path = cwd) {
     try {
       const j = await api('list', { path }, 'GET');
-      cwd = j.path; items = j.items; maxUpload = j.max_upload; selected.clear();
+      searchQ = ''; $('#searchClear').hidden = true;
+      cwd = j.path; items = j.items; maxUpload = j.max_upload; trashOn = j.trash_enabled; selected.clear(); lastList = j;
       history.replaceState(null, '', '#/' + cwd.split('/').map(encodeURIComponent).join('/'));
-      render(j);
+      const tb = $('#trashBtn'); if (tb) tb.textContent = '🗑 Corbeille' + (j.trash_count ? ` (${j.trash_count})` : '');
+      sortItems(); render(j);
     } catch (e) { toast(e.message, true); if (path) { cwd = ''; load(''); } }
   }
+
+  async function search(q) {
+    try {
+      const j = await api('search', { q }, 'GET');
+      searchQ = q; items = j.results; selected.clear(); $('#searchClear').hidden = false;
+      sortItems(); render(lastList);
+    } catch (e) { toast(e.message, true); }
+  }
+  $('#searchForm').addEventListener('submit', e => { e.preventDefault(); const q = $('#searchInput').value.trim(); q ? search(q) : load(); });
+  $('#searchClear').addEventListener('click', () => { $('#searchInput').value = ''; load(); });
+  document.querySelectorAll('th.sortable').forEach(th => th.addEventListener('click', () => {
+    sort = { key: th.dataset.sort, dir: sort.key === th.dataset.sort && sort.dir === 'asc' ? 'desc' : 'asc' };
+    try { localStorage.setItem('ys_sort', JSON.stringify(sort)); } catch {}
+    sortItems(); render(lastList);
+  }));
 
   function render(j) {
     const pct = j.quota ? Math.min(100, j.used / j.quota * 100) : 100;
     $('#quota').innerHTML = `<div class="quota"><div class="bar ${pct >= 90 ? 'danger' : pct >= 70 ? 'warn' : ''}"><span style="width:${pct.toFixed(1)}%"></span></div><small>${human(j.used)} utilisés sur ${human(j.quota)} (${pct.toFixed(1).replace('.', ',')} %) · max ${human(j.max_upload)} par fichier</small></div>`;
     const parts = cwd ? cwd.split('/') : [];
     let acc = '', html = `<a href="#/" data-nav="">🏠 ${esc(ROOT)}</a>`;
-    for (const p of parts) { acc = join(acc, p); html += `<span>/</span><a href="#" data-nav="${esc(acc)}">${esc(p)}</a>`; }
+    if (searchQ) html += `<span>›</span><strong>🔎 ${items.length}${items.length >= 200 ? '+' : ''} résultat(s) pour « ${esc(searchQ)} »</strong>`;
+    else for (const p of parts) { acc = join(acc, p); html += `<span>/</span><a href="#" data-nav="${esc(acc)}">${esc(p)}</a>`; }
     $('#crumbs').innerHTML = html;
 
     const rows = [];
-    if (cwd) rows.push(`<tr class="up"><td></td><td class="name" colspan="4"><span class="file-icon" data-ext="dir"></span><a href="#" data-nav="${esc(parts.slice(0, -1).join('/'))}">.. (dossier parent)</a></td></tr>`);
-    if (!items.length) rows.push(`<tr><td colspan="5" class="center muted empty">Ce dossier est vide.<br>Glissez-déposez des fichiers ici ou utilisez les boutons « Envoyer ».</td></tr>`);
+    if (cwd && !searchQ) rows.push(`<tr class="up"><td></td><td class="name" colspan="4"><span class="file-icon" data-ext="dir"></span><a href="#" data-nav="${esc(parts.slice(0, -1).join('/'))}">.. (dossier parent)</a></td></tr>`);
+    if (!items.length) rows.push(searchQ ? `<tr><td colspan="5" class="center muted empty">Aucun fichier ni dossier ne correspond à « ${esc(searchQ)} ».</td></tr>`
+      : `<tr><td colspan="5" class="center muted empty">Ce dossier est vide.<br>Glissez-déposez des fichiers ici ou utilisez les boutons « Envoyer ».</td></tr>`);
     items.forEach((it, i) => {
-      const p = join(cwd, it.name);
+      const p = pathOf(it);
+      const where = searchQ ? `<br><small class="muted break">/${esc(p.split('/').slice(0, -1).join('/'))}</small>` : '';
       rows.push(`<tr data-i="${i}">
         <td class="chk"><input type="checkbox" data-sel="${i}"></td>
         <td class="name"><span class="file-icon" data-ext="${it.dir ? 'dir' : esc(it.ext)}"></span>
           ${it.dir ? `<a href="#" data-nav="${esc(p)}">${esc(it.name)}</a>` : `<a href="${esc(dlUrl(p))}" target="_blank" rel="noopener">${esc(it.name)}</a>`}
-          ${it.shared ? '<span class="tag" title="Un lien public existe">🔗 partagé</span>' : ''}</td>
+          ${it.shared ? '<span class="tag" title="Un lien public existe">🔗 partagé</span>' : ''}${where}</td>
         <td class="hide-sm">${it.dir ? '—' : human(it.size)}</td>
         <td class="hide-sm">${fmtDate(it.mtime)}</td>
         <td class="right acts">
@@ -82,8 +116,11 @@
           <details class="menu"><summary class="btn sm" title="Plus d’actions">⋯</summary><div>
             ${it.editable ? '<button data-a="edit">✏️ Modifier</button>' : ''}
             <button data-a="rename">✎ Renommer</button>
+            <button data-a="duplicate">⧉ Dupliquer</button>
             <button data-a="move">↪ Déplacer</button>
-            <button data-a="delete" class="danger">🗑 Supprimer</button>
+            <button data-a="copy">📋 Copier vers…</button>
+            ${searchQ ? '<button data-a="reveal">📂 Ouvrir le dossier</button>' : ''}
+            <button data-a="delete" class="danger">🗑 ${trashOn ? 'Mettre à la corbeille' : 'Supprimer'}</button>
           </div></details>
         </td></tr>`);
     });
@@ -112,41 +149,82 @@
       buttons: [{ value: 'cancel', label: 'Annuler' }, { value: 'ok', label: 'Valider', cls: 'primary' }] });
     return r === 'ok' ? $('#dlgInput').value.trim() : null;
   }
-  async function confirmDlg(title, msg) {
-    return (await dialog({ title, body: `<p>${msg}</p>`, buttons: [{ value: 'cancel', label: 'Annuler' }, { value: 'ok', label: 'Supprimer', cls: 'danger' }] })) === 'ok';
+  async function confirmDlg(title, msg, okLabel = 'Supprimer') {
+    return (await dialog({ title, body: `<p>${msg}</p>`, buttons: [{ value: 'cancel', label: 'Annuler' }, { value: 'ok', label: okLabel, cls: 'danger' }] })) === 'ok';
+  }
+  async function deletePaths(ps, label) {
+    const msg = trashOn ? `Mettre ${label} à la corbeille ? Vous pourrez le restaurer pendant quelques jours.` : `Supprimer définitivement ${label} ?`;
+    if (!(await confirmDlg(trashOn ? 'Mettre à la corbeille' : 'Supprimer', msg, trashOn ? 'Mettre à la corbeille' : 'Supprimer'))) return;
+    await api('delete', { paths: ps });
+    toast(trashOn ? 'Déplacé dans la corbeille.' : 'Supprimé.');
+    searchQ ? search(searchQ) : load();
   }
   dlg.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'dlgInput') { e.preventDefault(); dlg.close('ok'); } });
 
-  async function shareDlg(path, isDir) {
+  async function shareDlg(path, isDir, j) {
     try {
-      const j = await api('share', { path });
+      j = j || await api('share', { path });
+      const o = j.options;
       const row = (lab, val, help) => `<div class="linkbox"><label>${lab}</label><div class="copyrow"><input readonly value="${esc(val)}" onclick="this.select()"><button type="button" class="btn" data-copy="${esc(val)}">Copier</button></div>${help ? `<small class="muted">${help}</small>` : ''}</div>`;
       const note = j.sandboxed ? ' Le HTML est servi en mode isolé (sécurité) : scripts autorisés, mais pas de cookies/localStorage.' : '';
-      let body = row('Lien de partage (page de téléchargement)', j.url, 'À envoyer à vos testeurs / clients.');
+      const keyNote = j.key ? ' Contient la clé d’accès : fonctionne sans saisir le mot de passe.' : '';
+      let body = '';
+      if (j.blocked) body += `<div class="alert warn">⚠ ${esc(j.blocked)}</div>`;
+      body += row('Lien de partage (page de téléchargement)', j.url, 'À envoyer à vos testeurs / clients.' + (o.has_password ? ' Le mot de passe sera demandé.' : ''));
       if (j.is_dir) {
-        if (j.site) body += row('🌐 Lien web du dossier (ouvre index.html)', j.site, 'Pour une WebView ou un site : les fichiers CSS/JS/images du dossier sont chargés automatiquement.' + note);
-        body += row('Adresse de base des fichiers (lecture directe)', j.files_base, 'Ajoutez le chemin du fichier à la fin, ex. : ' + esc(j.files_base) + 'data/config.json');
+        if (j.site) body += row('🌐 Lien web du dossier (ouvre index.html)', j.site, 'Pour une WebView ou un site : les fichiers CSS/JS/images du dossier sont chargés automatiquement.' + note + keyNote);
+        body += row('Adresse de base des fichiers (lecture directe)', j.files_base, 'Ajoutez le chemin du fichier à la fin, ex. : ' + esc(j.files_base) + 'data/config.json' + (j.key ? ' (ajoutez aussi ?k=' + esc(j.key) + ')' : ''));
         body += `<small class="muted">Toute personne ayant ces liens peut voir et télécharger le contenu du dossier (y compris en ZIP).</small>`;
       } else {
-        if (j.view) body += row('👁 Lien de lecture directe (affichage)', j.view, 'S’ouvre directement dans le navigateur, une WebView ou via fetch()/HTTP (JSON, HTML, images…).' + (/\.(html?|svg)$/i.test(j.name) ? note : ''));
-        body += row('⬇ Lien de téléchargement direct', j.direct, 'Force le téléchargement (idéal pour un APK).');
+        if (j.view) body += row('👁 Lien de lecture directe (affichage)', j.view, 'S’ouvre directement dans le navigateur, une WebView ou via fetch()/HTTP (JSON, HTML, images…).' + (/\.(html?|svg)$/i.test(j.name) ? note : '') + keyNote);
+        body += row('⬇ Lien de téléchargement direct', j.direct, 'Force le téléchargement (idéal pour un APK).' + keyNote);
       }
-      const r = await dialog({ title: '🔗 Lien de « ' + j.name + ' »', body,
-        buttons: [{ value: 'unshare', label: 'Désactiver le lien', cls: 'danger' }, { value: 'ok', label: 'Fermer', cls: 'primary' }] });
-      if (r === 'unshare') { await api('unshare', { path }); toast('Lien désactivé.'); }
-      load();
+      body += `<details class="share-opts" ${j.blocked || o.has_password || o.expires_at || o.max_downloads !== '' || o.disabled ? 'open' : ''}><summary>⚙️ Options du lien</summary>
+        <div class="status-line"><span class="tag">⬇ ${o.downloads} téléchargement(s)</span><span class="tag">👁 ${o.views} lecture(s)</span>${o.has_password ? '<span class="tag">🔒 protégé</span>' : ''}</div>
+        <div class="grid">
+          <label>Note (privée)<input id="soNote" value="${esc(o.note)}" placeholder="ex. Build envoyé au client"></label>
+          <label>Expire le<input type="datetime-local" id="soExp" value="${esc(o.expires_at)}"></label>
+          <label>Téléchargements max<input type="number" min="1" id="soMax" value="${esc(o.max_downloads)}" placeholder="illimité"></label>
+          <label>${o.has_password ? 'Nouveau mot de passe' : 'Mot de passe'}<input type="text" id="soPw" placeholder="${o.has_password ? 'inchangé' : 'aucun'}" autocomplete="off"></label>
+        </div>
+        <div class="checks">
+          ${o.has_password ? '<label><input type="checkbox" id="soNoPw"> Retirer le mot de passe</label>' : ''}
+          ${o.max_downloads !== '' ? '<label><input type="checkbox" id="soReset"> Remettre le compteur de téléchargements à zéro</label>' : ''}
+          <label><input type="checkbox" id="soDis" ${o.disabled ? 'checked' : ''}> Désactiver temporairement ce lien</label>
+        </div>
+        <div class="dlg-actions"><button type="button" class="btn" id="soExpQuick" data-days="7">Expire dans 7 jours</button><button type="button" class="btn primary" id="soSave">Enregistrer les options</button></div>
+      </details>`;
+      const pending = dialog({ title: '🔗 Lien de « ' + j.name + ' »', body,
+        buttons: [{ value: 'unshare', label: 'Supprimer le lien', cls: 'danger' }, { value: 'ok', label: 'Fermer', cls: 'primary' }] });
+      $('#soExpQuick').onclick = () => { const d = new Date(Date.now() + 7 * 864e5); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); $('#soExp').value = d.toISOString().slice(0, 16); };
+      $('#soSave').onclick = async () => {
+        try {
+          const nj = await api('share_options', { path, note: $('#soNote').value, expires_at: $('#soExp').value, max_downloads: $('#soMax').value,
+            password: $('#soPw').value, remove_password: $('#soNoPw')?.checked ? 1 : 0, reset_counter: $('#soReset')?.checked ? 1 : 0, disabled: $('#soDis').checked ? 1 : 0 });
+          toast('Options du lien enregistrées ✔');
+          // Rouvre le dialogue avec les nouvelles valeurs une fois l'ancien fermé.
+          dlg.onclose = null;
+          dlg.addEventListener('close', () => shareDlg(path, isDir, nj), { once: true });
+          dlg.close('reopen');
+        } catch (x) { toast(x.message, true); }
+      };
+      const r = await pending;
+      if (r === 'unshare' && await confirmDlg('Supprimer le lien', 'Le lien ne fonctionnera plus pour personne. Continuer ?')) { await api('unshare', { path }); toast('Lien supprimé.'); }
+      searchQ ? search(searchQ) : load();
     } catch (e) { toast(e.message, true); }
   }
 
-  async function moveDlg(paths) {
+  async function moveDlg(paths, copy) {
     try {
       const j = await api('tree', {}, 'GET');
       const opts = j.dirs.filter(d => !paths.some(p => d === p || d.startsWith(p + '/')))
-        .map(d => `<option value="${esc(d)}" ${d === cwd ? 'disabled' : ''}>${esc('/' + d)}${d === '' ? ' (racine)' : ''}</option>`).join('');
-      const r = await dialog({ title: 'Déplacer ' + paths.length + ' élément(s)', body: `<label class="form">Destination<select id="dlgSel">${opts}</select></label>`,
-        buttons: [{ value: 'cancel', label: 'Annuler' }, { value: 'ok', label: 'Déplacer', cls: 'primary' }] });
+        .map(d => `<option value="${esc(d)}" ${d === cwd && !copy ? 'disabled' : ''} ${d === cwd && copy ? 'selected' : ''}>${esc('/' + d)}${d === '' ? ' (racine)' : ''}</option>`).join('');
+      const verb = copy ? 'Copier' : 'Déplacer';
+      const r = await dialog({ title: verb + ' ' + paths.length + ' élément(s)', body: `<label class="form">Destination<select id="dlgSel">${opts}</select></label>`,
+        buttons: [{ value: 'cancel', label: 'Annuler' }, { value: 'ok', label: verb, cls: 'primary' }] });
       if (r !== 'ok') return;
-      await api('move', { paths, dest: $('#dlgSel').value }); toast('Déplacement effectué.'); load();
+      await api(copy ? 'copy' : 'move', { paths, dest: $('#dlgSel').value });
+      toast(copy ? 'Copie effectuée ✔' : 'Déplacement effectué.'); searchQ ? search(searchQ) : load();
     } catch (e) { toast(e.message, true); }
   }
 
@@ -180,20 +258,25 @@
       if (a === 'newfile') { const n = await ask('Nouveau fichier texte', 'Nom du fichier (ex. config.json)', 'nouveau.txt', true); if (n) openEditor(join(cwd, n), true); }
       if (a === 'sharecur') shareDlg(cwd, true);
       if (a === 'clearsel') { selected.clear(); document.querySelectorAll('[data-sel]').forEach(c => (c.checked = false)); $('#chkall').checked = false; updateSel(); }
-      if (a === 'delsel') { const ps = [...selected].map(i => join(cwd, items[i].name)); if (await confirmDlg('Supprimer', `Supprimer définitivement ${ps.length} élément(s) ?`)) try { await api('delete', { paths: ps }); toast('Supprimé.'); load(); } catch (x) { toast(x.message, true); } }
-      if (a === 'movesel') moveDlg([...selected].map(i => join(cwd, items[i].name)));
+      if (a === 'delsel') { const ps = [...selected].map(i => pathOf(items[i])); try { await deletePaths(ps, ps.length + ' élément(s)'); } catch (x) { toast(x.message, true); } }
+      if (a === 'movesel') moveDlg([...selected].map(i => pathOf(items[i])));
+      if (a === 'copysel') moveDlg([...selected].map(i => pathOf(items[i])), true);
       return;
     }
     const btn = e.target.closest('[data-a]'); if (!btn) return;
-    const tr = btn.closest('tr'); const it = items[+tr.dataset.i]; const p = join(cwd, it.name);
+    const tr = btn.closest('tr'); const it = items[+tr.dataset.i]; const p = pathOf(it);
+    const parent = p.split('/').slice(0, -1).join('/');
     btn.closest('details')?.removeAttribute('open');
     try {
       switch (btn.dataset.a) {
         case 'share': return shareDlg(p, it.dir);
         case 'edit': return openEditor(p, false);
         case 'move': return moveDlg([p]);
-        case 'rename': { const n = await ask('Renommer', 'Nouveau nom', it.name, !it.dir); if (n && n !== it.name) { await api('rename', { path: p, name: n }); toast('Renommé ✔'); load(); } return; }
-        case 'delete': if (await confirmDlg('Supprimer', `Supprimer définitivement « ${esc(it.name)} »${it.dir ? ' et tout son contenu' : ''} ?`)) { await api('delete', { paths: [p] }); toast('Supprimé.'); load(); } return;
+        case 'copy': return moveDlg([p], true);
+        case 'duplicate': { const r = await api('copy', { paths: [p], dest: parent }); toast('Copie créée : ' + r.names[0]); searchQ ? search(searchQ) : load(); return; }
+        case 'reveal': $('#searchInput').value = ''; return load(parent);
+        case 'rename': { const n = await ask('Renommer', 'Nouveau nom', it.name, !it.dir); if (n && n !== it.name) { await api('rename', { path: p, name: n }); toast('Renommé ✔'); searchQ ? search(searchQ) : load(); } return; }
+        case 'delete': return deletePaths([p], `« ${esc(it.name)} »${it.dir ? ' et tout son contenu' : ''}`);
       }
     } catch (x) { toast(x.message, true); }
   });
@@ -257,4 +340,19 @@
 
   window.addEventListener('hashchange', () => { const p = decodeURIComponent(location.hash.replace(/^#\/?/, '')); if (p !== cwd) load(p); });
   load(decodeURIComponent(location.hash.replace(/^#\/?/, '')));
+})();
+
+// ---------- Administration : filtre des membres ----------
+(() => {
+  const f = document.getElementById('memberFilter'), r = document.getElementById('memberRole');
+  if (!f) return;
+  const apply = () => {
+    const q = f.value.trim().toLowerCase(), role = r.value;
+    document.querySelectorAll('table.users tbody tr').forEach(tr => {
+      const okQ = !q || tr.dataset.search.includes(q);
+      const okR = !role || (role === 'inactive' ? tr.dataset.active === '0' : tr.dataset.role === role);
+      tr.hidden = !(okQ && okR);
+    });
+  };
+  f.addEventListener('input', apply); r.addEventListener('change', apply);
 })();

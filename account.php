@@ -9,8 +9,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $email = trim($_POST['email'] ?? '');
         if ($display === '') flash('Le nom affiché est obligatoire.', 'error');
         elseif ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) flash('E-mail invalide.', 'error');
+        elseif ($email !== '' && (function ($email, $id) { $q = db()->prepare('SELECT COUNT(*) FROM users WHERE LOWER(email) = LOWER(?) AND id <> ?'); $q->execute([$email, $id]); return $q->fetchColumn() > 0; })($email, (int)$me['id'])) flash('Cette adresse e-mail est déjà utilisée par un autre compte.', 'error');
         else {
-            db()->prepare('UPDATE users SET display_name = ?, email = ? WHERE id = ?')->execute([mb_substr($display, 0, 60), $email, $me['id']]);
+            db()->prepare('UPDATE users SET display_name = ?, email = ? WHERE id = ?')->execute([mb_substr($display, 0, 60), $email !== '' ? $email : null, $me['id']]);
             flash('Profil mis à jour.');
         }
     } else {

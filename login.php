@@ -44,6 +44,7 @@ page_header('Connexion');
     <label>Mot de passe<input type="password" name="password" required autocomplete="current-password"></label>
     <button class="btn primary">Se connecter</button>
   </form>
+  <p class="center small"><a href="<?= e(url('forgot.php')) ?>">Mot de passe oublié ?</a></p>
   <p class="center">Pas encore de compte ? <a href="<?= e(url('register.php')) ?>">S’inscrire avec un code</a></p>
 </div>
 <?php page_footer();

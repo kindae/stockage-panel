@@ -129,3 +129,40 @@ function fmt_dt(?string $utc, string $fmt = 'd/m/Y H:i'): string {
     $t = strtotime($utc . ' UTC');
     return $t ? date($fmt, $t) : '';
 }
+
+/** Secret propre à l'installation (signatures de liens protégés). */
+function app_secret(): string {
+    $s = setting('app_secret');
+    if (!$s) { $s = bin2hex(random_bytes(32)); set_setting('app_secret', $s); }
+    return $s;
+}
+
+/** Envoi d'un e-mail texte via la fonction mail() de l'hébergeur. */
+function send_mail(string $to, string $subject, string $body): bool {
+    if (!filter_var($to, FILTER_VALIDATE_EMAIL)) return false;
+    $host = preg_replace('/^(bd|www|files)\./', '', strtolower(preg_replace('/:\d+$/', '', $_SERVER['HTTP_HOST'] ?? 'localhost')));
+    $from = setting('mail_from') ?: 'no-reply@' . $host;
+    $name = cfg('app_name');
+    $headers = [
+        'From: =?UTF-8?B?' . base64_encode($name) . '?= <' . $from . '>',
+        'Reply-To: ' . $from,
+        'MIME-Version: 1.0',
+        'Content-Type: text/plain; charset=UTF-8',
+        'Content-Transfer-Encoding: 8bit',
+        'X-Mailer: Yabiso',
+    ];
+    $ok = @mail($to, '=?UTF-8?B?' . base64_encode($subject) . '?=', $body, implode("\r\n", $headers), '-f' . $from);
+    if (!$ok) error_log('Yabiso: échec envoi e-mail à ' . $to);
+    return $ok;
+}
+
+/** "2026-12-01 10:00:00" (UTC) dans le passé ? */
+function is_past(?string $utc): bool { return $utc !== null && $utc !== '' && strtotime($utc . ' UTC') <= time(); }
+
+/** Convertit une date locale saisie (datetime-local) en UTC pour la base. */
+function local_to_utc(string $local): ?string {
+    $local = trim($local);
+    if ($local === '') return null;
+    $t = strtotime($local);
+    return $t ? gmdate('Y-m-d H:i:s', $t) : null;
+}

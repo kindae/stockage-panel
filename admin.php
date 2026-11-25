@@ -46,6 +46,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($ch !== '' && $ch === strtolower($_SERVER['HTTP_HOST'] ?? '')) throw new RuntimeException('Le domaine des contenus doit être différent du domaine du panneau.');
             set_setting('content_host', $ch);
             set_setting('main_host', strtolower($_SERVER['HTTP_HOST'] ?? ''));
+            set_setting('trash_enabled', !empty($_POST['trash_enabled']) ? '1' : '0');
+            set_setting('trash_days', (string)max(1, min(3650, (int)($_POST['trash_days'] ?? 30))));
+            set_setting('trash_counts_quota', !empty($_POST['trash_counts_quota']) ? '1' : '0');
+            $mf = trim((string)($_POST['mail_from'] ?? ''));
+            if ($mf !== '' && !filter_var($mf, FILTER_VALIDATE_EMAIL)) throw new RuntimeException('Adresse d’expédition des e-mails invalide.');
+            set_setting('mail_from', $mf);
             log_action('settings', 'Quota par défaut : ' . human_size($q));
             flash('Paramètres enregistrés. Quota par défaut : ' . human_size($q) . '.');
             break;
@@ -98,9 +104,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!$u || !can_manage($me, $u) || $u['id'] == $me['id']) throw new RuntimeException('Action non autorisée.');
             if (($_POST['confirm'] ?? '') !== $u['username']) throw new RuntimeException('Confirmation incorrecte : tapez exactement l’identifiant.');
             rm_rf(cfg('storage_dir') . '/' . $u['folder']);
+            rm_rf(cfg('storage_dir') . '/.trash/' . $u['folder']);
             db()->prepare('DELETE FROM users WHERE id = ?')->execute([$u['id']]);
             log_action('delete_user', $u['username']);
             flash('Membre ' . $u['username'] . ' et ses fichiers supprimés.');
+            break;
+        }
+
+        case 'invite_create': {
+            $code = trim((string)($_POST['code'] ?? ''));
+            if ($code === '') $code = random_code();
+            if (!preg_match('/^[A-Za-z0-9-]{4,32}$/', $code)) throw new RuntimeException('Code : 4 à 32 caractères (lettres, chiffres, tiret).');
+            $code = strtoupper($code);
+            if (find_invite($code) || hash_equals(normalize_code(registration_code()), normalize_code($code))) throw new RuntimeException('Ce code existe déjà.');
+            $max = trim((string)($_POST['max_uses'] ?? ''));
+            if ($max !== '' && (!ctype_digit($max) || (int)$max < 1)) throw new RuntimeException('Nombre d’utilisations invalide.');
+            $days = trim((string)($_POST['days'] ?? ''));
+            if ($days !== '' && (!ctype_digit($days) || (int)$days < 1)) throw new RuntimeException('Durée de validité invalide.');
+            $qraw = trim((string)($_POST['quota'] ?? ''));
+            $quota = $qraw === '' ? null : parse_size_mb($qraw);
+            if ($qraw !== '' && $quota === null) throw new RuntimeException('Quota invalide (ex. 500, 1G).');
+            $role = ($_POST['role'] ?? 'user') === 'moderator' && is_admin($me) ? 'moderator' : 'user';
+            db()->prepare('INSERT INTO invite_codes(code, note, max_uses, expires_at, quota_bytes, role, created_by) VALUES(?,?,?,?,?,?,?)')
+                ->execute([$code, mb_substr(trim((string)($_POST['note'] ?? '')), 0, 120) ?: null, $max === '' ? null : (int)$max,
+                           $days === '' ? null : db_time((int)$days * 86400), $quota, $role, $me['id']]);
+            log_action('invite_create', $code);
+            flash('Code d’invitation ' . $code . ' créé.');
+            break;
+        }
+
+        case 'invite_toggle': case 'invite_delete': {
+            $st = db()->prepare('SELECT * FROM invite_codes WHERE id = ?'); $st->execute([(int)$_POST['id']]);
+            $c = $st->fetch();
+            if (!$c) throw new RuntimeException('Code introuvable.');
+            if ($c['role'] !== 'user' && !is_admin($me)) throw new RuntimeException('Action non autorisée.');
+            if ($do === 'invite_delete') {
+                db()->prepare('DELETE FROM invite_codes WHERE id = ?')->execute([$c['id']]);
+                log_action('invite_delete', $c['code']);
+                flash('Code ' . $c['code'] . ' supprimé.');
+            } else {
+                db()->prepare('UPDATE invite_codes SET active = 1 - active WHERE id = ?')->execute([$c['id']]);
+                log_action('invite_toggle', $c['code']);
+                flash('Code ' . $c['code'] . ($c['active'] ? ' désactivé.' : ' réactivé.'));
+            }
             break;
         }
 
@@ -133,6 +179,9 @@ $shareCount = (int)db()->query('SELECT COUNT(*) FROM shares')->fetchColumn();
 $logs = db()->query('SELECT l.*, u.username FROM logs l LEFT JOIN users u ON u.id = l.user_id ORDER BY l.id DESC LIMIT 60')->fetchAll();
 $roles = ['admin' => 'Administrateur', 'moderator' => 'Modérateur', 'user' => 'Membre'];
 $code = registration_code();
+$invites = db()->query('SELECT i.*, u.username AS creator FROM invite_codes i LEFT JOIN users u ON u.id = i.created_by ORDER BY i.id DESC')->fetchAll();
+$inviteNames = array_column($invites, 'code', 'id');
+trash_autopurge();
 $regUrl = url('register.php');
 $disk = @disk_free_space(cfg('storage_dir'));
 
@@ -185,6 +234,15 @@ page_header('Administration', 'admin');
         <small class="muted">Laissez vide : les pages HTML partagées s’affichent en <strong>mode isolé</strong> (scripts OK, mais sans cookies ni localStorage) pour protéger les comptes.
         Pour des sites / WebView complets, créez un 2ᵉ sous-domaine pointant vers <strong>le même dossier</strong> et indiquez-le ici : les liens « lecture » l’utiliseront sans restriction.</small>
       </label>
+      <fieldset class="fs"><legend>🗑 Corbeille</legend>
+        <label class="check"><input type="checkbox" name="trash_enabled" value="1" <?= trash_enabled() ? 'checked' : '' ?>> Activer la corbeille (sinon les suppressions sont définitives)</label>
+        <label>Suppression définitive après (jours)<input type="number" name="trash_days" min="1" max="3650" value="<?= (int)setting('trash_days', '30') ?>"></label>
+        <label class="check"><input type="checkbox" name="trash_counts_quota" value="1" <?= setting('trash_counts_quota', '1') === '1' ? 'checked' : '' ?>> La corbeille compte dans le quota du membre</label>
+      </fieldset>
+      <label>Adresse d’expédition des e-mails
+        <input type="email" name="mail_from" value="<?= e(setting('mail_from', '')) ?>" placeholder="ex. no-reply@yabiso.cloud">
+        <small class="muted">Utilisée pour « Mot de passe oublié ». Créez cette adresse dans hPanel › E-mails pour une meilleure délivrabilité.</small>
+      </label>
       <button class="btn primary">Enregistrer</button>
     </form>
     <p class="muted small">Limite d’envoi PHP actuelle : <strong><?= e(human_size(max_upload_bytes())) ?></strong> par fichier (modifiable dans <code>.user.ini</code> ou cPanel › Sélecteur PHP).</p>
@@ -194,18 +252,66 @@ page_header('Administration', 'admin');
   </section>
 </div>
 
+<section class="card" id="invites">
+  <h2>🎟️ Codes d’invitation</h2>
+  <p class="muted">En plus du code principal ci-dessus, créez des codes réutilisables : nombre d’inscriptions limité, date d’expiration, quota et rôle attribués automatiquement.</p>
+  <form method="post" class="invite-form">
+    <?= csrf_field() ?><input type="hidden" name="do" value="invite_create"><input type="hidden" name="tab" value="invites">
+    <label>Code<input name="code" placeholder="auto" class="mono"></label>
+    <label>Pour qui / note<input name="note" placeholder="ex. Studio Kin Apps"></label>
+    <label>Utilisations max<input name="max_uses" type="number" min="1" placeholder="illimité"></label>
+    <label>Valable (jours)<input name="days" type="number" min="1" placeholder="toujours"></label>
+    <label>Quota attribué<input name="quota" placeholder="défaut (ex. 500, 1G)"></label>
+    <?php if (is_admin($me)): ?>
+    <label>Rôle<select name="role"><option value="user">Membre</option><option value="moderator">Modérateur</option></select></label>
+    <?php endif; ?>
+    <button class="btn primary">Créer le code</button>
+  </form>
+  <?php if ($invites): ?>
+  <div class="table-wrap"><table class="files">
+    <thead><tr><th>Code</th><th>Note</th><th>Utilisations</th><th class="hide-sm">Expire</th><th class="hide-sm">Quota / rôle</th><th>État</th><th></th></tr></thead>
+    <tbody>
+    <?php foreach ($invites as $c): [$cls, $lab] = invite_status($c);
+        $link = url('register.php?code=' . rawurlencode($c['code']));
+        $msg = "Bonjour ! Voici ton accès à " . cfg('app_name') . " pour déposer tes fichiers d’applications.\n\n"
+             . "1. Ouvre : " . $link . "\n2. Ton code d’inscription : " . $c['code'] . "\n3. Choisis ton identifiant et ton mot de passe."; ?>
+      <tr>
+        <td><strong class="mono"><?= e($c['code']) ?></strong></td>
+        <td><?= e($c['note'] ?? '') ?><br><small class="muted">par <?= e($c['creator'] ?? '—') ?>, le <?= e(fmt_dt($c['created_at'], 'd/m/Y')) ?></small></td>
+        <td><?= (int)$c['uses'] ?> / <?= $c['max_uses'] === null ? '∞' : (int)$c['max_uses'] ?></td>
+        <td class="hide-sm"><?= $c['expires_at'] ? e(fmt_dt($c['expires_at'])) : '—' ?></td>
+        <td class="hide-sm"><?= $c['quota_bytes'] === null ? 'défaut' : e(human_size($c['quota_bytes'])) ?> · <?= $c['role'] === 'moderator' ? 'modérateur' : 'membre' ?></td>
+        <td><span class="tag <?= e($cls) ?>"><?= e($lab) ?></span></td>
+        <td class="acts">
+          <button class="btn sm" data-copy="<?= e($link) ?>" title="Lien d’inscription avec code prérempli">🔗 Lien</button>
+          <button class="btn sm" data-copy="<?= e($msg) ?>" title="Message d’invitation prêt à envoyer (WhatsApp, e-mail…)">✉ Message</button>
+          <form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="id" value="<?= (int)$c['id'] ?>"><input type="hidden" name="tab" value="invites">
+            <button class="btn sm" name="do" value="invite_toggle"><?= $c['active'] ? 'Désactiver' : 'Réactiver' ?></button>
+            <button class="btn sm danger" name="do" value="invite_delete" data-confirm="Supprimer le code <?= e($c['code']) ?> ?">🗑</button></form>
+        </td>
+      </tr>
+    <?php endforeach; ?>
+    </tbody>
+  </table></div>
+  <?php endif; ?>
+</section>
+
 <section class="card" id="members">
-  <h2>👥 Membres</h2>
+  <div class="card-head"><h2>👥 Membres</h2>
+    <input type="search" id="memberFilter" placeholder="Rechercher un membre (nom, identifiant, e-mail)…" aria-label="Rechercher un membre">
+    <select id="memberRole" aria-label="Filtrer par rôle"><option value="">Tous les rôles</option><option value="admin">Administrateurs</option><option value="moderator">Modérateurs</option><option value="user">Membres</option><option value="inactive">Suspendus</option></select>
+  </div>
   <div class="table-wrap">
   <table class="users">
     <thead><tr><th>Membre</th><th>Rôle</th><th>Stockage</th><th>Quota</th><th>Actions</th></tr></thead>
     <tbody>
     <?php foreach ($users as $u): $manage = can_manage($me, $u); $self = $u['id'] == $me['id']; ?>
-      <tr class="<?= $u['active'] ? '' : 'inactive' ?>">
+      <tr class="<?= $u['active'] ? '' : 'inactive' ?>" data-role="<?= e($u['role']) ?>" data-active="<?= (int)$u['active'] ?>"
+          data-search="<?= e(mb_strtolower($u['display_name'] . ' ' . $u['username'] . ' ' . ($u['email'] ?? ''))) ?>">
         <td>
           <strong><?= e($u['display_name']) ?></strong> <?= $self ? '<span class="tag">vous</span>' : '' ?><?= $u['active'] ? '' : '<span class="tag danger">suspendu</span>' ?><br>
           <small class="muted mono">@<?= e($u['username']) ?> · <?= e($u['email'] ?: 'sans e-mail') ?></small><br>
-          <small class="muted">Inscrit le <?= e(fmt_dt($u['created_at'], 'd/m/Y')) ?><?= $u['last_login'] ? ' · vu le ' . e(fmt_dt($u['last_login'])) : '' ?></small>
+          <small class="muted">Inscrit le <?= e(fmt_dt($u['created_at'], 'd/m/Y')) ?><?= !empty($u['invite_code_id']) && isset($inviteNames[$u['invite_code_id']]) ? ' avec le code ' . e($inviteNames[$u['invite_code_id']]) : '' ?><?= $u['last_login'] ? ' · vu le ' . e(fmt_dt($u['last_login'])) : '' ?></small>
         </td>
         <td>
           <?php if (is_admin($me) && !$self): ?>
@@ -228,6 +334,7 @@ page_header('Administration', 'admin');
         <td class="acts">
           <?php if ($manage || $self): ?>
             <a class="btn sm" href="<?= e(url('files.php' . ($self ? '' : '?as=' . (int)$u['id']))) ?>">📁 Fichiers</a>
+            <a class="btn sm" href="<?= e(url('trash.php' . ($self ? '' : '?as=' . (int)$u['id']))) ?>" title="Corbeille">🗑</a>
           <?php endif; ?>
           <?php if ($manage && !$self): ?>
             <form method="post" class="inline"><?= csrf_field() ?><input type="hidden" name="do" value="toggle"><input type="hidden" name="id" value="<?= (int)$u['id'] ?>"><input type="hidden" name="tab" value="members">

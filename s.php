@@ -24,6 +24,57 @@ function share_404(): void {
 }
 if (!$share || !$share['active']) share_404();
 
+function share_error(int $code, string $title, string $msg): void {
+    http_response_code($code);
+    if (!empty($_GET['raw']) || !empty($_GET['dl']) || !empty($_GET['zip'])) {
+        header('Content-Type: text/plain; charset=utf-8');
+        header('Access-Control-Allow-Origin: *');
+        exit($code . ' - ' . $msg);
+    }
+    page_header($title);
+    echo '<div class="card narrow center"><h1>' . e($title) . '</h1><p class="muted">' . e($msg) . '</p></div>';
+    page_footer();
+    exit;
+}
+
+// Lien désactivé, expiré ou épuisé
+if ($reason = share_block_reason($share)) share_error(410, 'Lien indisponible', $reason);
+
+// Lien protégé par mot de passe
+if (!share_unlocked($share)) {
+    $pwErr = '';
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (recent_actions('share_pw_fail') >= 10) {
+            $pwErr = 'Trop de tentatives. Réessayez dans 15 minutes.';
+        } elseif (password_verify((string)($_POST['share_password'] ?? ''), $share['password_hash'])) {
+            share_set_unlock_cookie($share);
+            header('Location: ' . ($_SERVER['REQUEST_URI'] ?? share_url($token)), true, 303);
+            exit;
+        } else {
+            log_action('share_pw_fail', $token, null);
+            $pwErr = 'Mot de passe incorrect.';
+        }
+    }
+    $dest = $_SERVER['HTTP_SEC_FETCH_DEST'] ?? '';
+    $wantsPage = $dest === 'document' || ($dest === '' && strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'text/html') !== false);
+    if (($dl || $raw || $zip) && !$wantsPage) share_error(401, 'Lien protégé', 'Ce lien est protégé par un mot de passe (ajoutez la clé ?k=… fournie par le propriétaire).');
+    http_response_code(401);
+    page_header('Lien protégé');
+    ?>
+    <div class="card narrow center">
+      <h1>🔒 Lien protégé</h1>
+      <p class="muted"><?= e($share['display_name']) ?> a protégé ce contenu par un mot de passe.</p>
+      <?php if ($pwErr): ?><div class="alert error"><?= e($pwErr) ?></div><?php endif; ?>
+      <form method="post" class="form">
+        <label>Mot de passe<input type="password" name="share_password" required autofocus autocomplete="off"></label>
+        <button class="btn primary">Accéder</button>
+      </form>
+    </div>
+    <?php
+    page_footer();
+    exit;
+}
+
 try {
     $root = user_root($share);
     $base = abs_path($root, $share['path']);
@@ -41,7 +92,8 @@ if ($raw && is_dir($abs)) {
     $uri = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
     if (setting('pretty_urls', '1') === '1' && substr($uri, -1) !== '/') {
         // Ajoute le "/" final pour que les chemins relatifs (css/js/images) fonctionnent.
-        header('Location: ' . $uri . '/', true, 301);
+        $qs = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_QUERY);
+        header('Location: ' . $uri . '/' . ($qs ? '?' . $qs : ''), true, 301);
         exit;
     }
     foreach (['index.html', 'index.htm'] as $idx) {
@@ -51,22 +103,24 @@ if ($raw && is_dir($abs)) {
 }
 
 if (is_file($abs) && ($dl || $raw)) {
-    db()->prepare('UPDATE shares SET downloads = downloads + 1 WHERE id = ?')->execute([$share['id']]);
+    db()->prepare('UPDATE shares SET ' . ($dl ? 'downloads = downloads + 1' : 'views = views + 1') . ', last_access = ? WHERE id = ?')
+        ->execute([db_time(), $share['id']]);
     send_file($abs, $dl ? 'download' : 'raw');
 }
 if (is_dir($abs) && $zip) {
-    db()->prepare('UPDATE shares SET downloads = downloads + 1 WHERE id = ?')->execute([$share['id']]);
+    db()->prepare('UPDATE shares SET downloads = downloads + 1, last_access = ? WHERE id = ?')->execute([db_time(), $share['id']]);
     send_zip($abs, $sub === '' ? $name : basename($sub));
 }
 if ($dl || $raw) share_404();
 
 function sub_link(string $token, string $sub, string $mode = ''): string {
-    if ($mode === 'raw') return share_url($token, 'view', $sub, basename($sub));
-    if ($mode === 'dl' && $sub === '') return share_url($token, 'dl');
+    global $share;
+    if ($mode === 'raw') return share_with_key($share, share_url($token, 'view', $sub, basename($sub)));
+    if ($mode === 'dl' && $sub === '') return share_with_key($share, share_url($token, 'dl'));
     $q = 's.php?t=' . rawurlencode($token) . ($sub !== '' ? '&p=' . rawurlencode($sub) : '');
     if ($sub === '' && $mode === '') return share_url($token);
     if ($mode !== '') $q .= '&' . $mode . '=1';
-    return url($q);
+    return $mode !== '' ? share_with_key($share, url($q)) : url($q);
 }
 
 page_header($name);
@@ -77,7 +131,7 @@ page_header($name);
     $mime = mime_of($abs);
     $fname = basename($abs);
     $direct = sub_link($token, $sub, 'dl');
-    $view = $sub === '' ? share_url($token, 'view', '', $fname) : sub_link($token, $sub, 'raw');
+    $view = $sub === '' ? share_with_key($share, share_url($token, 'view', '', $fname)) : sub_link($token, $sub, 'raw');
 ?>
   <div class="share-file">
     <div class="file-icon big" data-ext="<?= e(strtolower(pathinfo($fname, PATHINFO_EXTENSION))) ?>"></div>
@@ -114,7 +168,7 @@ page_header($name);
       <p class="muted">Dossier partagé par <strong><?= e($share['display_name']) ?></strong></p>
     </div>
     <div class="toolbar">
-      <?php if ($hasIndex): $site = share_url($token, 'site', $sub); ?>
+      <?php if ($hasIndex): $site = share_with_key($share, share_url($token, 'site', $sub)); ?>
         <a class="btn" href="<?= e($site) ?>" target="_blank" rel="noopener">🌐 Ouvrir le site</a>
       <?php endif; ?>
       <?php if (class_exists('ZipArchive')): ?>
