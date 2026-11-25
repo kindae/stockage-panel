@@ -1,0 +1,1112 @@
+# Yabiso Cloud Stockage — 1000 idées de fonctionnalités à ajouter
+
+Liste de fonctionnalités **qui n'existent pas encore** dans la plateforme (ce qui est déjà en place n'est pas repris : inscription par code renouvelé, dossier personnel, envoi de fichiers et de dossiers, renommer / déplacer / supprimer, éditeur texte, liens de partage, de téléchargement, de lecture directe et de site, ZIP, quotas par défaut et par membre, rôles admin / modérateur, suspension, journal, domaine des contenus `files.yabiso.cloud`…).
+
+Cochez une case (`[x]`) quand une fonctionnalité est réalisée.
+
+## Sommaire
+
+1. 📁 Gestion des fichiers et dossiers — n° 1 à 40
+2. ⬆️ Envoi de fichiers (upload) — n° 41 à 80
+3. 👁 Aperçu et lecture des fichiers — n° 81 à 120
+4. ✏️ Éditeur en ligne — n° 121 à 160
+5. 🔗 Partage et liens — n° 161 à 200
+6. 🔐 Sécurité des comptes — n° 201 à 240
+7. 🛡️ Sécurité du serveur et des fichiers — n° 241 à 280
+8. 🧑‍💼 Administration et modération — n° 281 à 320
+9. 📦 Quotas et stockage — n° 321 à 360
+10. 🎟️ Inscription et codes d'invitation — n° 361 à 400
+11. 👥 Collaboration et équipes — n° 401 à 440
+12. 📱 Outils pour développeurs d'applications mobiles — n° 441 à 480
+13. 🔌 API et intégrations — n° 481 à 520
+14. 🌐 Hébergement web, WebView et CDN — n° 521 à 560
+15. 🔎 Recherche et organisation — n° 561 à 600
+16. 🗂️ Versions et corbeille — n° 601 à 640
+17. 🔔 Notifications et communication — n° 641 à 680
+18. 📊 Statistiques et analytique — n° 681 à 720
+19. 🎨 Interface et ergonomie — n° 721 à 760
+20. 📲 Mobile et application — n° 761 à 800
+21. ⚡ Performance et fiabilité — n° 801 à 840
+22. 💾 Sauvegardes et maintenance — n° 841 à 880
+23. 🌍 Langues et accessibilité — n° 881 à 920
+24. 💰 Offres, abonnements et monétisation — n° 921 à 960
+25. ⚖️ Légal, documentation et support — n° 961 à 1000
+
+## 1. 📁 Gestion des fichiers et dossiers
+
+- [ ] **1.** Copier / dupliquer un fichier ou un dossier
+- [ ] **2.** Couper-coller entre dossiers (presse-papiers interne)
+- [ ] **3.** Glisser-déposer un élément sur un dossier pour le déplacer
+- [ ] **4.** Glisser-déposer vers le fil d'Ariane pour remonter d'un niveau
+- [ ] **5.** Sélection multiple avec Maj+clic
+- [ ] **6.** Sélection multiple avec Ctrl/Cmd+clic
+- [ ] **7.** Sélection par rectangle à la souris
+- [ ] **8.** Raccourci Ctrl+A pour tout sélectionner
+- [ ] **9.** Touche Suppr pour supprimer la sélection
+- [ ] **10.** Touche F2 pour renommer
+- [ ] **11.** Renommage en masse avec motif (préfixe, suffixe, numérotation)
+- [ ] **12.** Rechercher / remplacer dans les noms de fichiers
+- [ ] **13.** Changer la casse des noms en lot
+- [ ] **14.** Créer un fichier vide de n'importe quel type
+- [ ] **15.** Créer un fichier à partir d'un modèle (JSON, HTML, README…)
+- [ ] **16.** Extraire une archive ZIP directement sur le serveur
+- [ ] **17.** Extraire les archives TAR, TAR.GZ et 7z
+- [ ] **18.** Compresser une sélection en ZIP sur le serveur
+- [ ] **19.** Télécharger une sélection multiple en un seul ZIP
+- [ ] **20.** Vue en grille avec miniatures
+- [ ] **21.** Vue en liste compacte
+- [ ] **22.** Tri par nom, taille, date ou type (clic sur les colonnes)
+- [ ] **23.** Mémoriser le tri et la vue choisis par l'utilisateur
+- [ ] **24.** Affichage de la taille calculée de chaque dossier
+- [ ] **25.** Nombre d'éléments affiché pour chaque dossier
+- [ ] **26.** Panneau latéral d'arborescence des dossiers
+- [ ] **27.** Dossiers favoris épinglés dans la barre latérale
+- [ ] **28.** Fichiers récents (derniers ouverts / modifiés)
+- [ ] **29.** Couleur ou étiquette personnalisée sur un dossier
+- [ ] **30.** Icône / emoji personnalisé pour un dossier
+- [ ] **31.** Description / note sur un fichier ou dossier
+- [ ] **32.** Panneau « Informations » (taille, type, dates, chemin, empreinte)
+- [ ] **33.** Calcul et affichage des empreintes MD5 / SHA-256
+- [ ] **34.** Copier le chemin interne d'un fichier
+- [ ] **35.** Créer un raccourci (alias) vers un autre dossier
+- [ ] **36.** Verrouiller un fichier contre la modification ou la suppression
+- [ ] **37.** Afficher / masquer les fichiers cachés (commençant par un point)
+- [ ] **38.** Menu contextuel au clic droit
+- [ ] **39.** Annuler la dernière action (renommer, déplacer, supprimer)
+- [ ] **40.** Pagination ou chargement progressif des très gros dossiers
+
+## 2. ⬆️ Envoi de fichiers (upload)
+
+- [ ] **41.** Envoi par morceaux (chunked) pour dépasser la limite PHP
+- [ ] **42.** Reprise d'un envoi interrompu après coupure réseau
+- [ ] **43.** Envois en parallèle (plusieurs fichiers à la fois)
+- [ ] **44.** Bouton Pause / Reprendre pour chaque envoi
+- [ ] **45.** Bouton Annuler pour chaque envoi
+- [ ] **46.** Annuler tous les envois en cours
+- [ ] **47.** Vitesse d'envoi et temps restant affichés
+- [ ] **48.** Avertissement avant de quitter la page pendant un envoi
+- [ ] **49.** Choix en cas de conflit : remplacer, renommer ou ignorer
+- [ ] **50.** Appliquer le choix de conflit à tous les fichiers
+- [ ] **51.** Vérification du quota avant de lancer l'envoi
+- [ ] **52.** Vérification d'intégrité (somme de contrôle) après envoi
+- [ ] **53.** Coller une image depuis le presse-papiers (Ctrl+V) pour l'envoyer
+- [ ] **54.** Importer un fichier depuis une URL distante
+- [ ] **55.** Importer depuis Google Drive
+- [ ] **56.** Importer depuis Dropbox
+- [ ] **57.** Importer depuis OneDrive
+- [ ] **58.** Importer un dépôt GitHub (archive ZIP)
+- [ ] **59.** Prise de photo directe depuis le mobile
+- [ ] **60.** Enregistrement audio / vidéo direct depuis le navigateur
+- [ ] **61.** Envoi par e-mail vers une adresse dédiée au dossier
+- [ ] **62.** Lien d'envoi public (« boîte de dépôt ») pour recevoir des fichiers
+- [ ] **63.** Limite de taille et de types sur une boîte de dépôt
+- [ ] **64.** Liste des extensions interdites réglable par l'admin
+- [ ] **65.** Liste des extensions autorisées uniquement (mode strict)
+- [ ] **66.** Taille maximale par fichier réglable par membre
+- [ ] **67.** Compression automatique des images à l'envoi (option)
+- [ ] **68.** Suppression des données EXIF / GPS des photos à l'envoi
+- [ ] **69.** Conversion automatique HEIC → JPG
+- [ ] **70.** Renommage automatique des noms avec accents ou espaces (option)
+- [ ] **71.** Extraction automatique d'un ZIP après l'envoi (option)
+- [ ] **72.** Historique des envois du membre
+- [ ] **73.** Notification quand un gros envoi est terminé
+- [ ] **74.** File d'attente conservée si on change de dossier
+- [ ] **75.** Envoi en arrière-plan qui continue pendant la navigation
+- [ ] **76.** Glisser-déposer sur toute la page, pas seulement le tableau
+- [ ] **77.** Barre de progression globale de tous les envois
+- [ ] **78.** Résumé final (réussis / échoués) avec bouton « Réessayer les échecs »
+- [ ] **79.** Envoi via WebDAV
+- [ ] **80.** Envoi via SFTP (compte dédié par membre)
+
+## 3. 👁 Aperçu et lecture des fichiers
+
+- [ ] **81.** Visionneuse d'images plein écran avec zoom
+- [ ] **82.** Navigation image suivante / précédente dans la visionneuse
+- [ ] **83.** Diaporama automatique des images d'un dossier
+- [ ] **84.** Lecteur vidéo intégré avec vitesse de lecture
+- [ ] **85.** Lecteur audio intégré avec liste de lecture
+- [ ] **86.** Visionneuse PDF intégrée
+- [ ] **87.** Aperçu des documents Word, Excel et PowerPoint
+- [ ] **88.** Aperçu formaté du Markdown (README)
+- [ ] **89.** Affichage automatique du README.md sous la liste d'un dossier
+- [ ] **90.** Visionneuse JSON en arbre repliable
+- [ ] **91.** Validation JSON avec message d'erreur précis
+- [ ] **92.** Aperçu coloré du code source (coloration syntaxique)
+- [ ] **93.** Aperçu des CSV sous forme de tableau
+- [ ] **94.** Aperçu du contenu d'un ZIP sans l'extraire
+- [ ] **95.** Aperçu des polices de caractères (TTF, OTF, WOFF)
+- [ ] **96.** Aperçu des modèles 3D (GLB, GLTF, OBJ)
+- [ ] **97.** Aperçu des animations Lottie (JSON)
+- [ ] **98.** Aperçu des fichiers SVG en sécurité
+- [ ] **99.** Aperçu des images vectorielles Android (VectorDrawable XML)
+- [ ] **100.** Lecture des métadonnées EXIF des photos
+- [ ] **101.** Miniatures générées automatiquement pour les images
+- [ ] **102.** Miniatures générées pour les vidéos (image clé)
+- [ ] **103.** Miniatures pour les PDF (première page)
+- [ ] **104.** Aperçu au survol de la souris
+- [ ] **105.** Aperçu d'un site HTML dans un cadre isolé avant partage
+- [ ] **106.** Simulateur d'écran mobile pour prévisualiser un site (iPhone, Android)
+- [ ] **107.** Choix de la taille d'écran dans le simulateur
+- [ ] **108.** Mode sombre / clair pour la visionneuse de texte
+- [ ] **109.** Retour à la ligne automatique activable dans l'aperçu texte
+- [ ] **110.** Recherche de texte dans l'aperçu
+- [ ] **111.** Numéros de ligne dans l'aperçu de code
+- [ ] **112.** Affichage hexadécimal des fichiers binaires
+- [ ] **113.** Lecture des journaux (.log) avec suivi en direct
+- [ ] **114.** Aperçu des fichiers .env avec valeurs masquées
+- [ ] **115.** Comparaison visuelle de deux images (avant / après)
+- [ ] **116.** Comparaison de deux fichiers texte (diff)
+- [ ] **117.** Lecteur de sous-titres (SRT, VTT) avec la vidéo
+- [ ] **118.** Affichage des dimensions des images dans la liste
+- [ ] **119.** Affichage de la durée des vidéos et audios dans la liste
+- [ ] **120.** Ouvrir un fichier dans un nouvel onglet en un clic
+
+## 4. ✏️ Éditeur en ligne
+
+- [ ] **121.** Éditeur de code avancé (Monaco ou CodeMirror)
+- [ ] **122.** Coloration syntaxique selon l'extension
+- [ ] **123.** Autocomplétion de base pour JSON, HTML, CSS, JS
+- [ ] **124.** Formatage automatique (JSON, HTML, CSS, JS)
+- [ ] **125.** Minification JSON / CSS / JS en un clic
+- [ ] **126.** Validation JSON en temps réel
+- [ ] **127.** Validation XML en temps réel
+- [ ] **128.** Validation YAML en temps réel
+- [ ] **129.** Rechercher / remplacer dans l'éditeur
+- [ ] **130.** Recherche avec expressions régulières
+- [ ] **131.** Aller à la ligne N
+- [ ] **132.** Pliage de blocs de code
+- [ ] **133.** Plusieurs curseurs
+- [ ] **134.** Onglets pour ouvrir plusieurs fichiers à la fois
+- [ ] **135.** Indicateur de modifications non enregistrées
+- [ ] **136.** Enregistrement automatique (option)
+- [ ] **137.** Brouillon local récupéré après fermeture accidentelle
+- [ ] **138.** Choix de l'encodage (UTF-8, Latin-1…)
+- [ ] **139.** Choix des fins de ligne (LF / CRLF)
+- [ ] **140.** Choix de l'indentation (espaces / tabulations, taille)
+- [ ] **141.** Thème clair / sombre de l'éditeur
+- [ ] **142.** Taille de police réglable dans l'éditeur
+- [ ] **143.** Mode plein écran de l'éditeur
+- [ ] **144.** Aperçu en direct du HTML à côté du code
+- [ ] **145.** Aperçu en direct du Markdown à côté du texte
+- [ ] **146.** Éditeur visuel de JSON (formulaire)
+- [ ] **147.** Éditeur de tableau pour les CSV
+- [ ] **148.** Éditeur d'images simple (rogner, pivoter, redimensionner)
+- [ ] **149.** Conversion d'image (PNG ↔ JPG ↔ WEBP)
+- [ ] **150.** Générateur d'icônes d'application à partir d'une image
+- [ ] **151.** Recadrage aux tailles d'icônes Android / iOS
+- [ ] **152.** Annotation d'images (flèches, texte) pour les captures
+- [ ] **153.** Édition collaborative en temps réel
+- [ ] **154.** Afficher qui est en train d'éditer un fichier
+- [ ] **155.** Verrou d'édition pour éviter les écrasements
+- [ ] **156.** Détection de conflit si le fichier a changé entre-temps
+- [ ] **157.** Raccourcis clavier personnalisables
+- [ ] **158.** Extraits de code réutilisables (snippets) par membre
+- [ ] **159.** Ouvrir un dossier entier comme un projet dans l'éditeur
+- [ ] **160.** Terminal web restreint pour quelques commandes (option avancée)
+
+## 5. 🔗 Partage et liens
+
+- [ ] **161.** Date d'expiration sur un lien
+- [ ] **162.** Mot de passe sur un lien
+- [ ] **163.** Nombre maximum de téléchargements par lien
+- [ ] **164.** Désactivation automatique après la première ouverture (lien à usage unique)
+- [ ] **165.** Lien personnalisé lisible (ex. /s/mon-app-v2)
+- [ ] **166.** Plusieurs liens différents pour le même fichier
+- [ ] **167.** Nom / note sur chaque lien pour s'en souvenir
+- [ ] **168.** QR code généré pour chaque lien
+- [ ] **169.** Télécharger le QR code en PNG / SVG
+- [ ] **170.** Partage en un clic vers WhatsApp
+- [ ] **171.** Partage en un clic vers Telegram
+- [ ] **172.** Partage par e-mail depuis la plateforme
+- [ ] **173.** Bouton de partage natif du téléphone (Web Share API)
+- [ ] **174.** Lien en lecture seule ou avec droit d'envoi pour un dossier
+- [ ] **175.** Partage interne avec un autre membre (sans lien public)
+- [ ] **176.** Droits par membre : lecture, écriture, gestion
+- [ ] **177.** Dossier partagé visible dans « Partagés avec moi »
+- [ ] **178.** Page de partage personnalisée (logo, couleur, message)
+- [ ] **179.** Message d'accompagnement sur la page de téléchargement
+- [ ] **180.** Aperçu riche du lien dans WhatsApp / Facebook (Open Graph)
+- [ ] **181.** Lien « dernière version » qui pointe toujours vers le fichier le plus récent d'un dossier
+- [ ] **182.** Lien permanent par nom de fichier (ex. /u/membre/app.apk)
+- [ ] **183.** Statistiques par lien (ouvertures, téléchargements, pays)
+- [ ] **184.** Historique des accès d'un lien (date, IP masquée, appareil)
+- [ ] **185.** Notification au propriétaire quand un lien est utilisé
+- [ ] **186.** Limiter un lien à certains pays
+- [ ] **187.** Limiter un lien à certaines adresses IP
+- [ ] **188.** Exiger une adresse e-mail avant téléchargement
+- [ ] **189.** Liens signés temporaires pour usage dans une application
+- [ ] **190.** Révoquer tous les liens d'un membre en un clic (admin)
+- [ ] **191.** Lister tous les liens publics de la plateforme (admin)
+- [ ] **192.** Signaler un lien abusif depuis la page publique
+- [ ] **193.** Page de partage d'un dossier avec vue en grille de miniatures
+- [ ] **194.** Galerie photo publique pour un dossier d'images
+- [ ] **195.** Lecture vidéo en streaming sur la page de partage
+- [ ] **196.** Bouton « Copier » avec format Markdown / HTML du lien
+- [ ] **197.** Code d'intégration (iframe / balise img) à copier
+- [ ] **198.** Raccourcisseur de lien intégré
+- [ ] **199.** Lien de téléchargement direct de plusieurs fichiers sélectionnés
+- [ ] **200.** Désactiver temporairement un lien sans le supprimer
+
+## 6. 🔐 Sécurité des comptes
+
+- [ ] **201.** Double authentification (TOTP : Google Authenticator, Authy)
+- [ ] **202.** Codes de secours pour la double authentification
+- [ ] **203.** Double authentification obligatoire pour les admins et modérateurs
+- [ ] **204.** Connexion par clé d'accès (passkey / WebAuthn)
+- [ ] **205.** Connexion par lien magique envoyé par e-mail
+- [ ] **206.** Mot de passe oublié avec réinitialisation par e-mail
+- [ ] **207.** Vérification de l'adresse e-mail à l'inscription
+- [ ] **208.** Indicateur de robustesse du mot de passe
+- [ ] **209.** Refus des mots de passe connus comme compromis
+- [ ] **210.** Politique de mot de passe réglable par l'admin
+- [ ] **211.** Expiration des mots de passe (option)
+- [ ] **212.** Liste des sessions actives avec appareil et lieu
+- [ ] **213.** Déconnecter une session à distance
+- [ ] **214.** Déconnecter toutes les autres sessions
+- [ ] **215.** Déconnexion automatique après inactivité (réglable)
+- [ ] **216.** Option « Se souvenir de moi »
+- [ ] **217.** Alerte e-mail lors d'une connexion depuis un nouvel appareil
+- [ ] **218.** Historique de connexion visible par le membre
+- [ ] **219.** Blocage du compte après trop d'échecs (avec déblocage admin)
+- [ ] **220.** CAPTCHA après plusieurs échecs de connexion
+- [ ] **221.** CAPTCHA sur le formulaire d'inscription
+- [ ] **222.** Clés API personnelles avec permissions limitées
+- [ ] **223.** Expiration et rotation des clés API
+- [ ] **224.** Changement d'identifiant avec renommage du dossier
+- [ ] **225.** Changement d'e-mail avec confirmation
+- [ ] **226.** Suppression de son propre compte (avec délai de grâce)
+- [ ] **227.** Export de toutes ses données (RGPD)
+- [ ] **228.** Connexion via Google
+- [ ] **229.** Connexion via GitHub
+- [ ] **230.** Connexion via Apple
+- [ ] **231.** Connexion via Microsoft
+- [ ] **232.** Liaison / déliaison des comptes externes
+- [ ] **233.** Mode « emprunter l'identité » d'un membre pour le support (journalisé)
+- [ ] **234.** Confirmation par mot de passe avant les actions sensibles
+- [ ] **235.** Alerte quand le mot de passe est modifié
+- [ ] **236.** Questions de sécurité facultatives
+- [ ] **237.** Verrouillage d'un dossier par code PIN
+- [ ] **238.** Coffre-fort chiffré côté client pour fichiers sensibles
+- [ ] **239.** Avertissement si le compte n'a pas d'e-mail de récupération
+- [ ] **240.** Limitation des connexions à certains pays (option admin)
+
+## 7. 🛡️ Sécurité du serveur et des fichiers
+
+- [ ] **241.** Analyse antivirus des fichiers envoyés (ClamAV)
+- [ ] **242.** Quarantaine des fichiers suspects
+- [ ] **243.** Analyse antivirus programmée de tout le stockage
+- [ ] **244.** Détection des APK malveillants via VirusTotal (option)
+- [ ] **245.** Blocage des fichiers exécutables dangereux sur les liens publics
+- [ ] **246.** Chiffrement des fichiers au repos sur le disque
+- [ ] **247.** Chiffrement de la base de données
+- [ ] **248.** En-têtes de sécurité HTTP complets (HSTS, Referrer-Policy, Permissions-Policy)
+- [ ] **249.** Politique CSP stricte sur toutes les pages du panneau
+- [ ] **250.** Protection contre le clickjacking (frame-ancestors)
+- [ ] **251.** Limitation de débit sur l'API par membre
+- [ ] **252.** Limitation de débit sur les liens publics (anti-aspiration)
+- [ ] **253.** Limite de bande passante par lien
+- [ ] **254.** Protection anti-hotlinking (option par lien)
+- [ ] **255.** Liste noire d'adresses IP
+- [ ] **256.** Liste blanche d'adresses IP pour l'administration
+- [ ] **257.** Détection d'attaques par force brute avec alerte admin
+- [ ] **258.** Journal de sécurité séparé
+- [ ] **259.** Détection de connexions simultanées suspectes
+- [ ] **260.** Vérification d'intégrité des fichiers de l'application
+- [ ] **261.** Alerte si un fichier PHP apparaît dans le stockage
+- [ ] **262.** Déplacement assisté de data/ et storage/ hors de la racine web
+- [ ] **263.** Assistant de vérification de la configuration de sécurité
+- [ ] **264.** Test automatique que data/ et storage/ sont bien inaccessibles
+- [ ] **265.** Rotation des jetons de partage
+- [ ] **266.** Jetons de partage plus longs (option)
+- [ ] **267.** Masquage des noms de fichiers dans les URL publiques
+- [ ] **268.** Signature des liens directs avec expiration
+- [ ] **269.** Protection CSRF sur la déconnexion de toutes les pages
+- [ ] **270.** Durcissement de la configuration des cookies (__Host-)
+- [ ] **271.** Journal d'audit infalsifiable (chaînage des entrées)
+- [ ] **272.** Signalement de contenus illégaux avec traitement admin
+- [ ] **273.** Détection de contenus pour adultes (option)
+- [ ] **274.** Détection de doublons de fichiers interdits (empreintes)
+- [ ] **275.** Politique de conservation des journaux
+- [ ] **276.** Anonymisation des IP dans les journaux
+- [ ] **277.** Pare-feu applicatif (WAF) basique contre les injections
+- [ ] **278.** Page d'état de sécurité dans l'administration
+- [ ] **279.** Rapport de vulnérabilité (security.txt)
+- [ ] **280.** Tests de sécurité automatisés à chaque mise à jour
+
+## 8. 🧑‍💼 Administration et modération
+
+- [ ] **281.** Recherche de membres par nom, e-mail ou identifiant
+- [ ] **282.** Filtres de membres (rôle, actif, suspendu, quota plein)
+- [ ] **283.** Tri des membres par espace utilisé, date ou dernière connexion
+- [ ] **284.** Pagination de la liste des membres
+- [ ] **285.** Actions groupées sur plusieurs membres
+- [ ] **286.** Export de la liste des membres en CSV / Excel
+- [ ] **287.** Import de membres depuis un CSV
+- [ ] **288.** Fiche détaillée d'un membre (historique, liens, fichiers)
+- [ ] **289.** Notes internes de l'équipe sur un membre
+- [ ] **290.** Avertissement officiel envoyé à un membre
+- [ ] **291.** Suspension temporaire avec date de fin automatique
+- [ ] **292.** Motif de suspension affiché au membre
+- [ ] **293.** Bannissement définitif avec blocage de l'e-mail
+- [ ] **294.** Transfert des fichiers d'un membre à un autre
+- [ ] **295.** Fusion de deux comptes
+- [ ] **296.** Archivage d'un compte inactif (fichiers compressés)
+- [ ] **297.** Détection des comptes inactifs depuis X mois
+- [ ] **298.** Envoi de messages à tous les membres ou à un groupe
+- [ ] **299.** Bannière d'annonce sur le tableau de bord des membres
+- [ ] **300.** Permissions fines par modérateur (cases à cocher)
+- [ ] **301.** Rôles personnalisés créés par l'admin
+- [ ] **302.** Journal des actions des modérateurs
+- [ ] **303.** Filtrer le journal d'activité par membre, action ou date
+- [ ] **304.** Recherche dans le journal d'activité
+- [ ] **305.** Export du journal d'activité
+- [ ] **306.** File de modération des contenus signalés
+- [ ] **307.** Recherche globale de fichiers dans tous les espaces (admin)
+- [ ] **308.** Les plus gros fichiers de la plateforme
+- [ ] **309.** Les fichiers les plus téléchargés
+- [ ] **310.** Explorateur de stockage global pour l'admin
+- [ ] **311.** Corbeille globale gérée par l'admin
+- [ ] **312.** Paramètres de l'application modifiables sans toucher aux fichiers
+- [ ] **313.** Personnalisation du nom, logo et couleurs de la plateforme
+- [ ] **314.** Personnalisation des e-mails envoyés
+- [ ] **315.** Personnalisation des textes de la page d'inscription
+- [ ] **316.** Conditions d'utilisation à accepter à l'inscription
+- [ ] **317.** Tableau de bord admin avec graphiques
+- [ ] **318.** Vérification de la configuration PHP (limites, extensions)
+- [ ] **319.** Gestion des domaines (bd / files) depuis l'administration
+- [ ] **320.** Mode lecture seule pour un membre
+
+## 9. 📦 Quotas et stockage
+
+- [ ] **321.** Quota par groupe de membres
+- [ ] **322.** Quota temporaire (bonus pendant X jours)
+- [ ] **323.** Alerte e-mail au membre à 80 % puis 95 % du quota
+- [ ] **324.** Alerte admin quand un membre atteint son quota
+- [ ] **325.** Demande d'augmentation de quota par le membre
+- [ ] **326.** Traitement des demandes de quota par l'admin
+- [ ] **327.** Quota en nombre de fichiers (en plus de la taille)
+- [ ] **328.** Taille maximale de fichier liée au quota
+- [ ] **329.** Quota de bande passante mensuelle par membre
+- [ ] **330.** Quota de liens publics par membre
+- [ ] **331.** Calcul de l'espace utilisé mis en cache (plus rapide)
+- [ ] **332.** Recalcul manuel de l'espace utilisé par l'admin
+- [ ] **333.** Détail de l'espace par type de fichier (images, APK, vidéos…)
+- [ ] **334.** Détail de l'espace par dossier (graphique)
+- [ ] **335.** Liste des plus gros fichiers du membre
+- [ ] **336.** Détection des fichiers en double du membre
+- [ ] **337.** Suppression assistée des doublons
+- [ ] **338.** Nettoyage des fichiers anciens non consultés (suggestion)
+- [ ] **339.** Déduplication automatique au niveau du serveur
+- [ ] **340.** Compression transparente des fichiers texte stockés
+- [ ] **341.** Stockage des fichiers sur Amazon S3
+- [ ] **342.** Stockage sur Backblaze B2 ou Wasabi
+- [ ] **343.** Stockage sur Cloudflare R2
+- [ ] **344.** Stockage sur un serveur FTP / SFTP distant
+- [ ] **345.** Plusieurs disques avec répartition automatique
+- [ ] **346.** Migration de stockage local vers le cloud
+- [ ] **347.** Archivage froid des fichiers peu utilisés
+- [ ] **348.** Alerte quand le disque du serveur est presque plein
+- [ ] **349.** Prévision de remplissage du disque
+- [ ] **350.** Réservation d'espace pour l'admin
+- [ ] **351.** Quota global maximum pour toute la plateforme
+- [ ] **352.** Refus des inscriptions si le disque est plein
+- [ ] **353.** Espace partagé d'équipe avec son propre quota
+- [ ] **354.** Quota illimité pour certains membres
+- [ ] **355.** Affichage du quota dans la barre de navigation
+- [ ] **356.** Historique de l'utilisation de l'espace dans le temps
+- [ ] **357.** Graphique d'évolution du stockage global
+- [ ] **358.** Coût estimé du stockage par membre
+- [ ] **359.** Rapport mensuel d'utilisation envoyé par e-mail
+- [ ] **360.** Période de grâce avant blocage en cas de dépassement
+
+## 10. 🎟️ Inscription et codes d'invitation
+
+- [ ] **361.** Plusieurs codes d'inscription actifs en même temps
+- [ ] **362.** Code avec nombre d'utilisations limité (ex. 5 inscriptions)
+- [ ] **363.** Code avec date d'expiration
+- [ ] **364.** Code lié à un quota spécifique
+- [ ] **365.** Code lié à un rôle spécifique
+- [ ] **366.** Code lié à un groupe / une équipe
+- [ ] **367.** Nom / note sur chaque code (pour qui il a été créé)
+- [ ] **368.** Historique des codes et des membres inscrits avec chacun
+- [ ] **369.** Lien d'inscription avec code prérempli
+- [ ] **370.** QR code du lien d'inscription
+- [ ] **371.** Envoi d'une invitation par e-mail avec code unique
+- [ ] **372.** Envoi d'une invitation par WhatsApp
+- [ ] **373.** Invitations personnelles générées par les membres (option)
+- [ ] **374.** Limite d'invitations par membre
+- [ ] **375.** Validation manuelle des inscriptions par un admin
+- [ ] **376.** File d'attente des demandes d'inscription
+- [ ] **377.** Formulaire de demande de code pour les visiteurs
+- [ ] **378.** Champs supplémentaires à l'inscription (téléphone, pays, entreprise)
+- [ ] **379.** Choix du type de profil (développeur, studio, agence)
+- [ ] **380.** Lien vers le portfolio ou le Play Store du membre
+- [ ] **381.** Choix de la langue dès l'inscription
+- [ ] **382.** Vérification par SMS (option)
+- [ ] **383.** Liste noire de domaines e-mail jetables
+- [ ] **384.** Restriction des inscriptions à certains domaines e-mail
+- [ ] **385.** Message de bienvenue personnalisé après inscription
+- [ ] **386.** E-mail de bienvenue automatique
+- [ ] **387.** Visite guidée pour les nouveaux membres
+- [ ] **388.** Dossiers créés automatiquement à l'inscription (ex. Android, iOS, Assets)
+- [ ] **389.** Fichier README de bienvenue dans le dossier du membre
+- [ ] **390.** Période d'essai avec quota réduit
+- [ ] **391.** Statistiques des inscriptions par code
+- [ ] **392.** Désactivation immédiate d'un code compromis
+- [ ] **393.** Code affiché en grand pour être dicté facilement
+- [ ] **394.** Codes sans caractères ambigus (0/O, 1/I) — paramétrable
+- [ ] **395.** Longueur du code réglable
+- [ ] **396.** Masquer le code à l'écran jusqu'au clic (confidentialité)
+- [ ] **397.** Copier un message d'invitation tout prêt (texte + lien + code)
+- [ ] **398.** Notification admin à chaque nouvelle inscription
+- [ ] **399.** Notification au parrain quand son invité s'inscrit
+- [ ] **400.** Parrainage avec bonus de quota
+
+## 11. 👥 Collaboration et équipes
+
+- [ ] **401.** Création d'équipes / organisations
+- [ ] **402.** Dossier commun à une équipe
+- [ ] **403.** Inviter un membre existant dans son équipe
+- [ ] **404.** Rôles dans l'équipe (propriétaire, éditeur, lecteur)
+- [ ] **405.** Transfert de propriété d'une équipe
+- [ ] **406.** Quitter une équipe
+- [ ] **407.** Commentaires sur un fichier
+- [ ] **408.** Mentions @membre dans les commentaires
+- [ ] **409.** Réponses en fil de discussion sur un fichier
+- [ ] **410.** Résoudre / rouvrir un commentaire
+- [ ] **411.** Commentaires positionnés sur une image (point précis)
+- [ ] **412.** Validation / approbation d'un fichier (statut « validé »)
+- [ ] **413.** Statuts de fichier (brouillon, en revue, publié)
+- [ ] **414.** Assignation d'un fichier à un membre
+- [ ] **415.** Tâches liées à un dossier (liste de choses à faire)
+- [ ] **416.** Fil d'activité de l'équipe
+- [ ] **417.** Notifications des modifications dans un dossier suivi
+- [ ] **418.** Suivre / ne plus suivre un dossier
+- [ ] **419.** Partage avec un client externe en accès invité
+- [ ] **420.** Compte invité limité dans le temps
+- [ ] **421.** Espace « client » pour livrer des versions d'application
+- [ ] **422.** Page de livraison avec plusieurs versions et notes
+- [ ] **423.** Signature électronique de réception d'une livraison
+- [ ] **424.** Demande de fichiers à un client avec liste attendue
+- [ ] **425.** Chat interne entre membres
+- [ ] **426.** Chat par équipe
+- [ ] **427.** Appel vidéo ou partage d'écran (intégration externe)
+- [ ] **428.** Tableau Kanban des tâches de l'équipe
+- [ ] **429.** Calendrier des livraisons
+- [ ] **430.** Annuaire des membres (option publique)
+- [ ] **431.** Profil public d'un membre (avatar, bio, applications)
+- [ ] **432.** Avatar personnalisable
+- [ ] **433.** Statut de présence (en ligne, absent)
+- [ ] **434.** Mode « ne pas déranger » pour les notifications
+- [ ] **435.** Historique des actions d'un membre dans l'équipe
+- [ ] **436.** Corbeille partagée de l'équipe
+- [ ] **437.** Modèles de structure de dossiers pour les projets
+- [ ] **438.** Duplication d'un projet complet
+- [ ] **439.** Export d'un projet complet en ZIP avec métadonnées
+- [ ] **440.** Lien de partage d'équipe avec marque de l'équipe
+
+## 12. 📱 Outils pour développeurs d'applications mobiles
+
+- [ ] **441.** Lecture automatique des informations d'un APK (nom, package, version)
+- [ ] **442.** Affichage de l'icône de l'application extraite de l'APK
+- [ ] **443.** Affichage des permissions demandées par l'APK
+- [ ] **444.** Affichage de la version minimale d'Android requise
+- [ ] **445.** Lecture des informations d'un AAB
+- [ ] **446.** Lecture des informations d'un IPA (bundle id, version)
+- [ ] **447.** Affichage de l'icône extraite de l'IPA
+- [ ] **448.** Page d'installation Android avec bouton « Installer »
+- [ ] **449.** Page d'installation iOS ad hoc (manifeste itms-services)
+- [ ] **450.** Génération du fichier manifest.plist pour iOS
+- [ ] **451.** QR code d'installation à scanner avec le téléphone
+- [ ] **452.** Historique des versions d'une application (v1.0, v1.1…)
+- [ ] **453.** Notes de version (changelog) par build
+- [ ] **454.** Canal de distribution (bêta, production)
+- [ ] **455.** Liste de testeurs par application
+- [ ] **456.** Notification aux testeurs lors d'une nouvelle version
+- [ ] **457.** Vérification de la signature de l'APK
+- [ ] **458.** Comparaison de deux versions d'APK (taille, permissions)
+- [ ] **459.** Détection des APK de débogage
+- [ ] **460.** Conversion AAB → APK universel (bundletool)
+- [ ] **461.** Hébergement de fichiers de configuration distante (remote config JSON)
+- [ ] **462.** Gestionnaire de versions « mise à jour obligatoire » pour les apps
+- [ ] **463.** Point d'API « dernière version » pour la vérification de mise à jour in-app
+- [ ] **464.** Hébergement de fichiers de traduction (i18n JSON)
+- [ ] **465.** Hébergement des politiques de confidentialité pour le Play Store
+- [ ] **466.** Modèle de page de politique de confidentialité à remplir
+- [ ] **467.** Hébergement de la page « Supprimer mon compte » exigée par Google
+- [ ] **468.** Hébergement des fichiers assetlinks.json (Android App Links)
+- [ ] **469.** Hébergement du fichier apple-app-site-association (Universal Links)
+- [ ] **470.** Générateur de captures d'écran au format des stores
+- [ ] **471.** Générateur de bannières / feature graphic Play Store
+- [ ] **472.** Générateur d'icônes adaptatives Android
+- [ ] **473.** Générateur de splash screens
+- [ ] **474.** Stockage des fichiers keystore avec chiffrement et avertissement
+- [ ] **475.** Coffre de secrets (clés API, google-services.json) chiffré
+- [ ] **476.** Rappel de sauvegarde du keystore
+- [ ] **477.** Hébergement de fichiers OTA pour Expo / React Native (CodePush-like)
+- [ ] **478.** Hébergement des mises à jour Flutter / Shorebird (fichiers statiques)
+- [ ] **479.** Intégration CI : envoi automatique d'un build depuis GitHub Actions
+- [ ] **480.** Intégration CI : envoi depuis GitLab CI / Codemagic / Bitrise
+
+## 13. 🔌 API et intégrations
+
+- [ ] **481.** API REST documentée pour lister les fichiers
+- [ ] **482.** API pour envoyer un fichier
+- [ ] **483.** API pour supprimer, renommer, déplacer
+- [ ] **484.** API pour créer un lien de partage
+- [ ] **485.** Documentation interactive de l'API (Swagger / OpenAPI)
+- [ ] **486.** Clés API par application
+- [ ] **487.** Jetons OAuth2 pour applications tierces
+- [ ] **488.** Webhooks lors d'un envoi de fichier
+- [ ] **489.** Webhooks lors d'un téléchargement
+- [ ] **490.** Webhooks lors d'une inscription
+- [ ] **491.** Signature des webhooks (HMAC)
+- [ ] **492.** Journal des appels de webhooks avec relance
+- [ ] **493.** Outil en ligne de commande (CLI) pour envoyer des fichiers
+- [ ] **494.** SDK JavaScript
+- [ ] **495.** SDK Flutter / Dart
+- [ ] **496.** SDK Kotlin pour Android
+- [ ] **497.** SDK Swift pour iOS
+- [ ] **498.** Exemple d'intégration dans une application React Native
+- [ ] **499.** Accès WebDAV pour monter le stockage comme un disque
+- [ ] **500.** Compatibilité API S3 (pour outils existants)
+- [ ] **501.** Synchronisation avec rclone
+- [ ] **502.** Application de synchronisation de bureau (Windows / macOS / Linux)
+- [ ] **503.** Intégration Zapier
+- [ ] **504.** Intégration Make (Integromat)
+- [ ] **505.** Intégration n8n
+- [ ] **506.** Notifications vers Slack
+- [ ] **507.** Notifications vers Discord
+- [ ] **508.** Notifications vers Telegram (bot)
+- [ ] **509.** Bot Telegram pour envoyer / récupérer des fichiers
+- [ ] **510.** Bot WhatsApp pour recevoir les liens
+- [ ] **511.** Intégration Google Drive (synchronisation)
+- [ ] **512.** Intégration GitHub (publier une release vers le stockage)
+- [ ] **513.** Intégration Firebase (hébergement de fichiers de config)
+- [ ] **514.** Envoi depuis Postman avec collection prête
+- [ ] **515.** Limites d'appels API affichées au membre
+- [ ] **516.** Statistiques d'utilisation de l'API
+- [ ] **517.** Mode bac à sable pour tester l'API
+- [ ] **518.** Versionnement de l'API (v1, v2)
+- [ ] **519.** Exemples de code dans plusieurs langages
+- [ ] **520.** Page d'état de l'API
+
+## 14. 🌐 Hébergement web, WebView et CDN
+
+- [ ] **521.** Domaine personnalisé par membre (ex. app.client.com)
+- [ ] **522.** Certificat SSL automatique pour les domaines personnalisés
+- [ ] **523.** Sous-domaine par membre (membre.files.yabiso.cloud)
+- [ ] **524.** Page 404 personnalisée pour un site hébergé
+- [ ] **525.** Redirections configurables pour un site (fichier _redirects)
+- [ ] **526.** Mode application monopage (SPA : tout vers index.html)
+- [ ] **527.** En-têtes HTTP personnalisés par dossier
+- [ ] **528.** Réglage du cache par type de fichier
+- [ ] **529.** Compression gzip / brotli des fichiers servis
+- [ ] **530.** Mise en cache côté serveur des fichiers populaires
+- [ ] **531.** Intégration Cloudflare / CDN externe
+- [ ] **532.** Purge du cache CDN en un clic
+- [ ] **533.** Mode « site statique » avec URL propre sans /s/JETON
+- [ ] **534.** Publication d'un site depuis un ZIP
+- [ ] **535.** Déploiement d'un site depuis un dépôt Git
+- [ ] **536.** Versions de site avec retour en arrière
+- [ ] **537.** Aperçu d'une version avant publication
+- [ ] **538.** Protection par mot de passe d'un site hébergé
+- [ ] **539.** Statistiques de visites d'un site hébergé
+- [ ] **540.** Formulaires de contact pour sites statiques
+- [ ] **541.** Hébergement de manifeste PWA et service worker
+- [ ] **542.** Support des fichiers .well-known
+- [ ] **543.** Redimensionnement d'images à la volée (?w=300)
+- [ ] **544.** Conversion automatique en WebP / AVIF à la volée
+- [ ] **545.** Recadrage d'images à la volée pour les applications
+- [ ] **546.** Streaming vidéo adaptatif (HLS)
+- [ ] **547.** Transcodage vidéo automatique pour le web
+- [ ] **548.** Point d'API JSON lisible avec filtrage (?field=)
+- [ ] **549.** Réponses JSONP pour anciens clients
+- [ ] **550.** Règles CORS réglables par lien
+- [ ] **551.** Origines autorisées configurables par lien
+- [ ] **552.** Limitation du référent (Referer) pour l'intégration
+- [ ] **553.** Liens directs propres pour WebView sans redirection
+- [ ] **554.** Mode hors ligne : génération d'un ZIP du site pour l'embarquer dans l'app
+- [ ] **555.** Vérification des liens cassés dans un site hébergé
+- [ ] **556.** Inspecteur des ressources manquantes (404) d'un site
+- [ ] **557.** Console d'erreurs des sites hébergés
+- [ ] **558.** Prise en charge HTTP/2 Server Push / Early Hints
+- [ ] **559.** Variables d'environnement injectées dans un site statique
+- [ ] **560.** Modèles de sites prêts à l'emploi (page app, page de lancement)
+
+## 15. 🔎 Recherche et organisation
+
+- [ ] **561.** Barre de recherche de fichiers par nom
+- [ ] **562.** Recherche dans tous les sous-dossiers
+- [ ] **563.** Recherche dans le contenu des fichiers texte
+- [ ] **564.** Filtres de recherche par type de fichier
+- [ ] **565.** Filtres par taille
+- [ ] **566.** Filtres par date de modification
+- [ ] **567.** Recherche floue tolérante aux fautes
+- [ ] **568.** Suggestions pendant la frappe
+- [ ] **569.** Historique des recherches
+- [ ] **570.** Recherches enregistrées
+- [ ] **571.** Étiquettes (tags) sur les fichiers
+- [ ] **572.** Filtrer par étiquette
+- [ ] **573.** Couleurs d'étiquettes personnalisables
+- [ ] **574.** Collections virtuelles (fichiers de plusieurs dossiers)
+- [ ] **575.** Dossiers intelligents (règles automatiques)
+- [ ] **576.** Rangement automatique des fichiers selon des règles
+- [ ] **577.** Classement automatique des photos par date
+- [ ] **578.** Reconnaissance de texte dans les images (OCR) pour la recherche
+- [ ] **579.** Recherche dans le contenu des PDF
+- [ ] **580.** Index de recherche mis à jour automatiquement
+- [ ] **581.** Recherche de fichiers partagés uniquement
+- [ ] **582.** Recherche dans la corbeille
+- [ ] **583.** Raccourci clavier « / » pour rechercher
+- [ ] **584.** Palette de commandes (Ctrl+K)
+- [ ] **585.** Vue chronologique de tous les fichiers
+- [ ] **586.** Vue par type (toutes les images, tous les APK…)
+- [ ] **587.** Favoris / étoiles sur les fichiers
+- [ ] **588.** Épingler des fichiers en haut du dossier
+- [ ] **589.** Ordre manuel des fichiers par glisser-déposer
+- [ ] **590.** Métadonnées personnalisées (champs libres) sur les fichiers
+- [ ] **591.** Recherche par métadonnée
+- [ ] **592.** Recherche par empreinte (trouver un fichier identique)
+- [ ] **593.** Rechercher les fichiers sans lien de partage
+- [ ] **594.** Rechercher les fichiers jamais téléchargés
+- [ ] **595.** Recherche par extension exacte (.apk, .json…)
+- [ ] **596.** Export des résultats de recherche
+- [ ] **597.** Opérations groupées sur les résultats de recherche
+- [ ] **598.** Recherche vocale sur mobile
+- [ ] **599.** Recherche par auteur de l'envoi dans un dossier d'équipe
+- [ ] **600.** Mise en évidence des termes trouvés
+
+## 16. 🗂️ Versions et corbeille
+
+- [ ] **601.** Corbeille au lieu de suppression définitive
+- [ ] **602.** Restaurer un élément depuis la corbeille
+- [ ] **603.** Vider la corbeille
+- [ ] **604.** Suppression automatique de la corbeille après 30 jours (réglable)
+- [ ] **605.** Corbeille comptée ou non dans le quota (réglable)
+- [ ] **606.** Historique des versions d'un fichier
+- [ ] **607.** Restaurer une version précédente
+- [ ] **608.** Télécharger une version précédente
+- [ ] **609.** Comparer deux versions d'un fichier texte
+- [ ] **610.** Nombre maximum de versions conservées (réglable)
+- [ ] **611.** Versions conservées lors d'un remplacement à l'envoi
+- [ ] **612.** Versions conservées lors d'une modification dans l'éditeur
+- [ ] **613.** Nommer une version (ex. « v1.2 publiée »)
+- [ ] **614.** Commentaire sur une version
+- [ ] **615.** Instantané d'un dossier entier à une date
+- [ ] **616.** Restaurer un dossier entier à une date
+- [ ] **617.** Protection contre la suppression accidentelle de gros dossiers
+- [ ] **618.** Confirmation renforcée pour supprimer plus de N fichiers
+- [ ] **619.** Annulation de la suppression pendant quelques secondes
+- [ ] **620.** Restauration par l'admin d'un fichier supprimé par un membre
+- [ ] **621.** Journal de qui a supprimé quoi
+- [ ] **622.** Récupération après rançongiciel (versions immuables)
+- [ ] **623.** Verrouillage légal (rétention obligatoire) d'un dossier
+- [ ] **624.** Purge définitive sécurisée (écrasement)
+- [ ] **625.** Rapport de la corbeille (taille, plus anciens éléments)
+- [ ] **626.** Suppression programmée d'un fichier à une date
+- [ ] **627.** Fichiers éphémères (supprimés après X jours)
+- [ ] **628.** Archivage d'un dossier en lecture seule
+- [ ] **629.** Désarchivage d'un dossier
+- [ ] **630.** Gel d'un dossier de livraison
+- [ ] **631.** Historique de renommage et déplacement d'un fichier
+- [ ] **632.** Lien de partage conservé après restauration
+- [ ] **633.** Notification avant suppression automatique
+- [ ] **634.** Vider la corbeille d'un membre (admin)
+- [ ] **635.** Statistiques des suppressions
+- [ ] **636.** Restaurer vers un autre dossier
+- [ ] **637.** Versionnement automatique des APK par numéro de version
+- [ ] **638.** Comparaison de versions d'images
+- [ ] **639.** Politique de versions différente par dossier
+- [ ] **640.** Export de l'historique des versions
+
+## 17. 🔔 Notifications et communication
+
+- [ ] **641.** Centre de notifications dans l'interface
+- [ ] **642.** Badge du nombre de notifications non lues
+- [ ] **643.** Notifications par e-mail configurables
+- [ ] **644.** Notifications push du navigateur
+- [ ] **645.** Notifications push sur mobile (PWA)
+- [ ] **646.** Résumé quotidien par e-mail
+- [ ] **647.** Résumé hebdomadaire par e-mail
+- [ ] **648.** Choix des événements à notifier par le membre
+- [ ] **649.** Notification de nouveau fichier dans un dossier partagé
+- [ ] **650.** Notification de téléchargement de ses fichiers
+- [ ] **651.** Notification d'expiration prochaine d'un lien
+- [ ] **652.** Notification quand un lien atteint sa limite de téléchargements
+- [ ] **653.** Notification de nouveau commentaire
+- [ ] **654.** Notification de mention
+- [ ] **655.** Notification de connexion suspecte
+- [ ] **656.** Notification de changement de rôle
+- [ ] **657.** Notification de suspension / réactivation
+- [ ] **658.** Annonces de l'administration
+- [ ] **659.** Messages privés de l'admin vers un membre
+- [ ] **660.** Boîte de réception des messages
+- [ ] **661.** Configuration SMTP dans l'administration
+- [ ] **662.** Test d'envoi d'e-mail depuis l'administration
+- [ ] **663.** Modèles d'e-mails en HTML
+- [ ] **664.** E-mails en plusieurs langues
+- [ ] **665.** Journal des e-mails envoyés
+- [ ] **666.** Désinscription des e-mails non essentiels
+- [ ] **667.** Notifications SMS (option payante)
+- [ ] **668.** Notifications WhatsApp Business (option)
+- [ ] **669.** Webhook de notifications personnalisé par membre
+- [ ] **670.** Notification admin des erreurs serveur
+- [ ] **671.** Notification admin des envois très volumineux
+- [ ] **672.** Notification admin des signalements
+- [ ] **673.** Alertes de maintenance planifiée
+- [ ] **674.** Bannière de maintenance prévue
+- [ ] **675.** Page « Nouveautés » des mises à jour
+- [ ] **676.** Infobulle de nouveauté sur les nouvelles fonctions
+- [ ] **677.** Formulaire de contact du support
+- [ ] **678.** Système de tickets de support
+- [ ] **679.** Réponse du support par e-mail
+- [ ] **680.** Accusé de réception automatique des demandes de support
+
+## 18. 📊 Statistiques et analytique
+
+- [ ] **681.** Tableau de bord personnel du membre
+- [ ] **682.** Nombre total de fichiers et dossiers du membre
+- [ ] **683.** Téléchargements par jour (graphique)
+- [ ] **684.** Fichiers les plus téléchargés du membre
+- [ ] **685.** Pays des téléchargements
+- [ ] **686.** Appareils des visiteurs (Android, iOS, ordinateur)
+- [ ] **687.** Navigateurs des visiteurs
+- [ ] **688.** Sources de trafic (référents)
+- [ ] **689.** Statistiques des liens de lecture directe (appels API / WebView)
+- [ ] **690.** Statistiques des installations d'APK
+- [ ] **691.** Export des statistiques en CSV
+- [ ] **692.** Statistiques en temps réel
+- [ ] **693.** Tableau de bord global de l'admin
+- [ ] **694.** Nombre d'inscriptions par mois
+- [ ] **695.** Membres actifs par jour / mois
+- [ ] **696.** Espace total utilisé dans le temps
+- [ ] **697.** Bande passante consommée par membre
+- [ ] **698.** Bande passante totale de la plateforme
+- [ ] **699.** Classement des membres les plus actifs
+- [ ] **700.** Types de fichiers les plus stockés
+- [ ] **701.** Taille moyenne des fichiers
+- [ ] **702.** Taux d'utilisation des quotas
+- [ ] **703.** Durée moyenne des sessions
+- [ ] **704.** Heures de pointe d'utilisation
+- [ ] **705.** Erreurs d'envoi les plus fréquentes
+- [ ] **706.** Temps de réponse du serveur
+- [ ] **707.** Rapport mensuel automatique pour l'admin
+- [ ] **708.** Rapport PDF téléchargeable
+- [ ] **709.** Taux de conversion des pages de partage en téléchargements
+- [ ] **710.** Suivi des membres qui n'ont jamais envoyé de fichier
+- [ ] **711.** Entonnoir : inscription → premier envoi → premier partage
+- [ ] **712.** Carte du monde des téléchargements
+- [ ] **713.** Statistiques de l'API
+- [ ] **714.** Temps de chargement des sites hébergés
+- [ ] **715.** Respect de la vie privée : statistiques sans cookies
+- [ ] **716.** Intégration Google Analytics (option)
+- [ ] **717.** Intégration Matomo / Plausible (option)
+- [ ] **718.** Comparaison de périodes (ce mois vs mois dernier)
+- [ ] **719.** Objectifs et alertes sur les indicateurs
+- [ ] **720.** Widgets de statistiques personnalisables
+
+## 19. 🎨 Interface et ergonomie
+
+- [ ] **721.** Choix manuel du thème clair / sombre / automatique
+- [ ] **722.** Thèmes de couleurs personnalisés
+- [ ] **723.** Mise en page optimisée pour très grands écrans
+- [ ] **724.** Page d'accueil publique présentant le service
+- [ ] **725.** Tableau de bord d'accueil après connexion
+- [ ] **726.** Visite guidée interactive des fonctions
+- [ ] **727.** Infobulles d'aide sur les boutons
+- [ ] **728.** Raccourcis clavier avec aide (touche ?)
+- [ ] **729.** Fil d'Ariane cliquable avec menu déroulant
+- [ ] **730.** Barre latérale repliable
+- [ ] **731.** Mode compact pour les grands écrans
+- [ ] **732.** Taille de texte réglable
+- [ ] **733.** Animations réduites (option accessibilité)
+- [ ] **734.** États vides illustrés et explicatifs
+- [ ] **735.** Messages d'erreur clairs avec solution proposée
+- [ ] **736.** Indicateur de chargement squelette (skeleton)
+- [ ] **737.** Mise à jour en temps réel de la liste (sans recharger)
+- [ ] **738.** Rafraîchissement automatique quand un autre appareil modifie
+- [ ] **739.** Glisser-déposer de fichiers depuis le site vers le bureau
+- [ ] **740.** Barre d'état en bas (sélection, taille totale)
+- [ ] **741.** Double-clic pour ouvrir un fichier
+- [ ] **742.** Prévisualisation rapide avec la barre d'espace
+- [ ] **743.** Personnalisation des colonnes affichées
+- [ ] **744.** Largeur des colonnes réglable
+- [ ] **745.** Mode présentation pour montrer un dossier à un client
+- [ ] **746.** Page de profil avec avatar
+- [ ] **747.** Page de paramètres personnels regroupée
+- [ ] **748.** Préférences de langue et de fuseau horaire
+- [ ] **749.** Format de date choisi par le membre
+- [ ] **750.** Unités de taille (Mo / MiB) au choix
+- [ ] **751.** Confirmation visuelle (toast) avec bouton Annuler
+- [ ] **752.** Mémorisation du dernier dossier ouvert
+- [ ] **753.** Favicon avec compteur d'envois en cours
+- [ ] **754.** Titre d'onglet indiquant le dossier courant
+- [ ] **755.** Impression propre d'une liste de fichiers
+- [ ] **756.** Écran de connexion personnalisable (image de fond)
+- [ ] **757.** Écran de chargement aux couleurs de la marque
+- [ ] **758.** Accès rapide « Nouveau » unique (dossier, fichier, envoi)
+- [ ] **759.** Menu « Aide » avec documentation intégrée
+- [ ] **760.** Mode démo pour présenter la plateforme sans compte
+
+## 20. 📲 Mobile et application
+
+- [ ] **761.** Application web installable (PWA)
+- [ ] **762.** Icône d'application et écran de démarrage PWA
+- [ ] **763.** Fonctionnement hors ligne pour consulter la liste mise en cache
+- [ ] **764.** Interface tactile optimisée (gros boutons)
+- [ ] **765.** Gestes de balayage (supprimer, partager)
+- [ ] **766.** Appui long pour sélectionner
+- [ ] **767.** Barre d'actions en bas de l'écran sur mobile
+- [ ] **768.** Bouton flottant « + » sur mobile
+- [ ] **769.** Envoi depuis la galerie du téléphone
+- [ ] **770.** Partager vers Yabiso depuis d'autres applications (Share Target)
+- [ ] **771.** Téléchargement direct vers le téléphone
+- [ ] **772.** Ouverture des fichiers avec les applications du téléphone
+- [ ] **773.** Application Android native
+- [ ] **774.** Application iOS native
+- [ ] **775.** Envoi automatique des photos du téléphone (sauvegarde)
+- [ ] **776.** Envoi uniquement en Wi-Fi (option)
+- [ ] **777.** Mode économie de données
+- [ ] **778.** Notifications push natives
+- [ ] **779.** Déverrouillage par empreinte / Face ID
+- [ ] **780.** Widget d'écran d'accueil (espace utilisé)
+- [ ] **781.** Scanner de documents avec la caméra (PDF)
+- [ ] **782.** Scanner de QR code pour ouvrir un lien de partage
+- [ ] **783.** Installation d'APK depuis l'application Android
+- [ ] **784.** Mode tablette avec deux panneaux
+- [ ] **785.** Rotation paysage optimisée
+- [ ] **786.** Lecteur vidéo plein écran sur mobile
+- [ ] **787.** Visionneuse d'images avec pincement pour zoomer
+- [ ] **788.** Clavier adapté (e-mail, URL) dans les formulaires
+- [ ] **789.** Saisie automatique du code d'inscription depuis un lien
+- [ ] **790.** Connexion par QR code depuis un ordinateur
+- [ ] **791.** Synchronisation d'un dossier du téléphone
+- [ ] **792.** Accès hors ligne à des fichiers marqués
+- [ ] **793.** Gestion des téléchargements en arrière-plan
+- [ ] **794.** Reprise des téléchargements interrompus sur mobile
+- [ ] **795.** Raccourcis d'application (appui long sur l'icône)
+- [ ] **796.** Taille de police selon les réglages du téléphone
+- [ ] **797.** Version légère pour connexions lentes (2G/3G)
+- [ ] **798.** Compression avant envoi sur réseau mobile
+- [ ] **799.** Retour haptique sur les actions
+- [ ] **800.** Application de bureau (Electron / Tauri)
+
+## 21. ⚡ Performance et fiabilité
+
+- [ ] **801.** Cache du calcul de taille des dossiers
+- [ ] **802.** Index des fichiers en base de données (au lieu de parcourir le disque)
+- [ ] **803.** Pré-chargement du dossier au survol de la souris
+- [ ] **804.** Chargement différé des miniatures
+- [ ] **805.** Compression des réponses de l'API
+- [ ] **806.** Minification des fichiers CSS et JS de l'interface
+- [ ] **807.** Mise en cache longue des ressources statiques
+- [ ] **808.** Utilisation de X-Sendfile / X-Accel-Redirect pour les téléchargements
+- [ ] **809.** Création des ZIP en flux (sans fichier temporaire)
+- [ ] **810.** File de tâches en arrière-plan (ZIP, miniatures, antivirus)
+- [ ] **811.** Tâches planifiées (cron) pour le nettoyage
+- [ ] **812.** Passage possible de SQLite à MySQL / MariaDB
+- [ ] **813.** Passage possible à PostgreSQL
+- [ ] **814.** Cache Redis pour les sessions (option)
+- [ ] **815.** Sessions stockées en base de données
+- [ ] **816.** Optimisation automatique de la base SQLite (VACUUM)
+- [ ] **817.** Index de base de données supplémentaires
+- [ ] **818.** Limitation du nombre de téléchargements simultanés par IP
+- [ ] **819.** Gestion des très gros fichiers (plus de 4 Go)
+- [ ] **820.** Test de charge documenté
+- [ ] **821.** Surveillance du temps de réponse
+- [ ] **822.** Page d'état publique (status page)
+- [ ] **823.** Surveillance de disponibilité (uptime) avec alerte
+- [ ] **824.** Journal des erreurs PHP consultable par l'admin
+- [ ] **825.** Rapport d'erreurs JavaScript côté client
+- [ ] **826.** Gestion propre des erreurs réseau avec nouvelle tentative
+- [ ] **827.** Mode dégradé si la base est verrouillée
+- [ ] **828.** Verrous de fichiers pour éviter les écritures concurrentes
+- [ ] **829.** Transactions pour les opérations groupées
+- [ ] **830.** Vérification de cohérence base / disque
+- [ ] **831.** Réparation automatique des incohérences
+- [ ] **832.** Nettoyage des fichiers temporaires orphelins
+- [ ] **833.** Nettoyage des sessions expirées
+- [ ] **834.** Purge automatique des anciens journaux
+- [ ] **835.** Mise à l'échelle sur plusieurs serveurs
+- [ ] **836.** Stockage partagé pour plusieurs serveurs
+- [ ] **837.** Équilibrage de charge
+- [ ] **838.** Mode haute disponibilité
+- [ ] **839.** Tests automatisés (unitaires et de bout en bout)
+- [ ] **840.** Intégration continue avec tests à chaque modification
+
+## 22. 💾 Sauvegardes et maintenance
+
+- [ ] **841.** Sauvegarde automatique quotidienne de la base de données
+- [ ] **842.** Sauvegarde automatique des fichiers
+- [ ] **843.** Sauvegarde incrémentale
+- [ ] **844.** Sauvegarde vers un stockage externe (S3, Google Drive)
+- [ ] **845.** Sauvegarde vers un autre serveur FTP / SFTP
+- [ ] **846.** Chiffrement des sauvegardes
+- [ ] **847.** Rotation des sauvegardes (7 jours, 4 semaines, 12 mois)
+- [ ] **848.** Restauration d'une sauvegarde depuis l'administration
+- [ ] **849.** Téléchargement d'une sauvegarde par l'admin
+- [ ] **850.** Vérification automatique des sauvegardes
+- [ ] **851.** Alerte en cas d'échec de sauvegarde
+- [ ] **852.** Sauvegarde avant chaque mise à jour
+- [ ] **853.** Export complet de la plateforme (migration)
+- [ ] **854.** Import d'une plateforme exportée
+- [ ] **855.** Assistant de migration vers un nouvel hébergeur
+- [ ] **856.** Mise à jour automatique de l'application
+- [ ] **857.** Vérification des nouvelles versions disponibles
+- [ ] **858.** Journal des modifications de l'application
+- [ ] **859.** Retour à la version précédente de l'application
+- [ ] **860.** Mode maintenance avec message personnalisé
+- [ ] **861.** Accès admin pendant la maintenance
+- [ ] **862.** Vérification de compatibilité avant mise à jour
+- [ ] **863.** Migrations de base de données automatiques
+- [ ] **864.** Assistant d'installation guidé (vérification PHP, droits)
+- [ ] **865.** Installation en un clic via Softaculous (paquet)
+- [ ] **866.** Image Docker officielle
+- [ ] **867.** Fichier docker-compose prêt à l'emploi
+- [ ] **868.** Guide d'installation pour Hostinger
+- [ ] **869.** Guide d'installation pour cPanel
+- [ ] **870.** Guide d'installation pour VPS (Nginx + PHP-FPM)
+- [ ] **871.** Script de vérification de l'environnement
+- [ ] **872.** Outil de diagnostic exportable pour le support
+- [ ] **873.** Nettoyage des comptes supprimés
+- [ ] **874.** Réindexation complète des fichiers
+- [ ] **875.** Recalcul de tous les quotas
+- [ ] **876.** Vérification des permissions des dossiers
+- [ ] **877.** Correction automatique des permissions
+- [ ] **878.** Archive des journaux anciens
+- [ ] **879.** Planificateur de tâches visible dans l'admin
+- [ ] **880.** Historique des tâches de maintenance
+
+## 23. 🌍 Langues et accessibilité
+
+- [ ] **881.** Interface en anglais
+- [ ] **882.** Interface en lingala
+- [ ] **883.** Interface en swahili
+- [ ] **884.** Interface en kikongo
+- [ ] **885.** Interface en tshiluba
+- [ ] **886.** Interface en portugais
+- [ ] **887.** Interface en espagnol
+- [ ] **888.** Interface en arabe (lecture de droite à gauche)
+- [ ] **889.** Sélecteur de langue
+- [ ] **890.** Détection automatique de la langue du navigateur
+- [ ] **891.** Langue préférée enregistrée dans le profil
+- [ ] **892.** Pages de partage dans la langue du visiteur
+- [ ] **893.** E-mails dans la langue du membre
+- [ ] **894.** Traductions modifiables par l'admin
+- [ ] **895.** Fichiers de traduction faciles à contribuer
+- [ ] **896.** Formats de date et de nombre selon la langue
+- [ ] **897.** Navigation complète au clavier
+- [ ] **898.** Indicateurs de focus visibles
+- [ ] **899.** Compatibilité avec les lecteurs d'écran (ARIA)
+- [ ] **900.** Textes alternatifs sur toutes les icônes
+- [ ] **901.** Contrastes conformes WCAG AA
+- [ ] **902.** Mode contraste élevé
+- [ ] **903.** Taille de texte agrandie sans casser la mise en page
+- [ ] **904.** Libellés explicites sur tous les champs
+- [ ] **905.** Messages d'erreur annoncés aux lecteurs d'écran
+- [ ] **906.** Sous-titres pour les vidéos d'aide
+- [ ] **907.** Lien « Aller au contenu »
+- [ ] **908.** Ordre de tabulation logique dans les dialogues
+- [ ] **909.** Fermeture des dialogues avec Échap partout
+- [ ] **910.** Cibles tactiles assez grandes
+- [ ] **911.** Pas d'information transmise uniquement par la couleur
+- [ ] **912.** Réduction des mouvements respectée
+- [ ] **913.** Déclaration d'accessibilité
+- [ ] **914.** Audit d'accessibilité automatisé
+- [ ] **915.** Icônes avec libellé texte en option
+- [ ] **916.** Emojis remplaçables par des icônes SVG accessibles
+- [ ] **917.** Lecture vocale des notifications (option)
+- [ ] **918.** Mode dyslexie (police adaptée)
+- [ ] **919.** Documentation en langage simple
+- [ ] **920.** Vidéos tutoriels en français et lingala
+
+## 24. 💰 Offres, abonnements et monétisation
+
+- [ ] **921.** Plans d'abonnement (gratuit, pro, studio)
+- [ ] **922.** Quota selon le plan choisi
+- [ ] **923.** Page de tarifs
+- [ ] **924.** Paiement par Mobile Money (M-Pesa, Orange Money, Airtel Money)
+- [ ] **925.** Paiement par carte bancaire (Stripe)
+- [ ] **926.** Paiement par PayPal
+- [ ] **927.** Paiement en francs congolais et en dollars
+- [ ] **928.** Facturation mensuelle ou annuelle
+- [ ] **929.** Factures PDF automatiques
+- [ ] **930.** Historique des paiements du membre
+- [ ] **931.** Coupons de réduction
+- [ ] **932.** Période d'essai gratuite d'un plan
+- [ ] **933.** Achat d'espace supplémentaire à l'unité
+- [ ] **934.** Achat de bande passante supplémentaire
+- [ ] **935.** Rappel avant renouvellement
+- [ ] **936.** Rétrogradation automatique si non-paiement
+- [ ] **937.** Grâce de quelques jours après échec de paiement
+- [ ] **938.** Gestion des abonnements par l'admin
+- [ ] **939.** Tableau des revenus pour l'admin
+- [ ] **940.** Programme de parrainage rémunéré
+- [ ] **941.** Revendeurs / agences avec sous-comptes
+- [ ] **942.** Offre spéciale étudiants
+- [ ] **943.** Offre spéciale ONG
+- [ ] **944.** Crédits offerts à l'inscription
+- [ ] **945.** Fonctions premium (domaine perso, statistiques avancées)
+- [ ] **946.** Suppression de la marque Yabiso sur les pages de partage (premium)
+- [ ] **947.** Publicité discrète sur les pages de partage gratuites (option)
+- [ ] **948.** Page de téléchargement avec compte à rebours (plan gratuit)
+- [ ] **949.** Taxes (TVA) selon le pays
+- [ ] **950.** Devis pour les grandes équipes
+- [ ] **951.** Paiement par virement bancaire validé par l'admin
+- [ ] **952.** Validation manuelle des paiements Mobile Money par référence
+- [ ] **953.** Notification de paiement reçu
+- [ ] **954.** Export comptable des paiements
+- [ ] **955.** Tableau de bord d'abonnement du membre
+- [ ] **956.** Changement de plan en cours de mois (prorata)
+- [ ] **957.** Résiliation en un clic
+- [ ] **958.** Enquête de satisfaction à la résiliation
+- [ ] **959.** Statistiques de rétention des abonnés
+- [ ] **960.** Plan entreprise avec SLA
+
+## 25. ⚖️ Légal, documentation et support
+
+- [ ] **961.** Conditions générales d'utilisation
+- [ ] **962.** Politique de confidentialité
+- [ ] **963.** Politique de cookies avec bandeau de consentement
+- [ ] **964.** Mentions légales
+- [ ] **965.** Politique d'utilisation acceptable (contenus interdits)
+- [ ] **966.** Procédure de signalement de contenu (DMCA / droit d'auteur)
+- [ ] **967.** Registre des traitements de données (RGPD)
+- [ ] **968.** Consentement enregistré avec date et version
+- [ ] **969.** Nouvelle acceptation lors d'un changement des conditions
+- [ ] **970.** Durée de conservation des données documentée
+- [ ] **971.** Vérification que les données des comptes fermés sont bien effacées
+- [ ] **972.** Modèle de réponse aux demandes d'accès aux données
+- [ ] **973.** Journal des demandes RGPD
+- [ ] **974.** Contrat de sous-traitance pour les entreprises
+- [ ] **975.** Localisation des données affichée (pays du serveur)
+- [ ] **976.** Guide de démarrage pour les nouveaux membres
+- [ ] **977.** Centre d'aide en ligne avec articles
+- [ ] **978.** Recherche dans le centre d'aide
+- [ ] **979.** Webinaires de prise en main
+- [ ] **980.** Documentation de l'API
+- [ ] **981.** Guide « Héberger une WebView » pas à pas
+- [ ] **982.** Guide « Distribuer un APK à ses testeurs »
+- [ ] **983.** Guide « Configuration distante JSON pour son application »
+- [ ] **984.** Guide pour les administrateurs et modérateurs
+- [ ] **985.** Charte de modération
+- [ ] **986.** FAQ des erreurs courantes (taille, quota, lien)
+- [ ] **987.** Glossaire des termes
+- [ ] **988.** Forum communautaire des membres
+- [ ] **989.** Base de connaissances alimentée par le support
+- [ ] **990.** Assistant d'aide (chatbot) intégré
+- [ ] **991.** Contact du support par WhatsApp
+- [ ] **992.** Horaires et délais de réponse du support affichés
+- [ ] **993.** Note de satisfaction après une demande de support
+- [ ] **994.** Page « À propos » de Yabiso
+- [ ] **995.** Page de contact
+- [ ] **996.** Feuille de route publique
+- [ ] **997.** Vote des membres pour les prochaines fonctionnalités
+- [ ] **998.** Journal des nouveautés public
+- [ ] **999.** Programme de bêta-testeurs
+- [ ] **1000.** Dossier de presse et logos officiels
+
+---
+
+Total : **1000 idées** réparties en 25 thèmes.
